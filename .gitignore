@@ -1,0 +1,7 @@
+workstation/
+temp/
+__pycache__/
+*.pyc
+.env
+.workspace
+test-workspace/

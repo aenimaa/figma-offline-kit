@@ -1,0 +1,19 @@
+{
+ "workspace": "~/figma-backup",
+ "team": "https://www.figma.com/files/team/1234567890/Example-Team",
+ "mode": "project",
+ "pages": "all-except-archive",
+ "archive_words": "archive, old, deprecated",
+ "formats": [
+  "png",
+  "svg"
+ ],
+ "addons": [
+  "coverage",
+  "drift",
+  "archives"
+ ],
+ "local_copies": "guided",
+ "archive_format": "zip",
+ "language": "en"
+}

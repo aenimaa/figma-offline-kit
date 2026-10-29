@@ -1,0 +1,40 @@
+{
+ "about": "Design tokens per screen, made by figma-offline-kit. svg: raw = no colour bound to a variable, the raw SVG is the token SVG · ok = token SVG in screens/svg-tokens (method hex or render) · none = no SVG for this frame · gone = frame deleted in Figma since the backup.",
+ "file_key": "FAKEkeyCCC3",
+ "file": "Landing",
+ "screens": {
+  "3:1": {
+   "n": 1,
+   "tokens": {},
+   "unbound_colors": [],
+   "svg": "raw",
+   "colors_tokenized": 0
+  },
+  "3:2": {
+   "n": 2,
+   "tokens": {},
+   "unbound_colors": [],
+   "svg": "none"
+  },
+  "3:3": {
+   "n": 3,
+   "tokens": {},
+   "unbound_colors": [],
+   "svg": "none"
+  }
+ },
+ "figma_last_modified": "2026-10-05T12:00:00Z",
+ "generated": "2026-10-29T15:53:23+0330",
+ "summary": {
+  "screens": 3,
+  "token_svgs": 0,
+  "raw_is_token_svg": 1,
+  "by_method": {
+   "hex": 0,
+   "render": 0
+  },
+  "colors_tokenized": 0,
+  "unresolved_variables": 0,
+  "screens_with_unbound_colors": 0
+ }
+}
