@@ -1,0 +1,14 @@
+{
+ "name": "Onboarding sign-up",
+ "pages": [
+  "Screens"
+ ],
+ "prepared": "2026-10-30T13:16:31+0330",
+ "finished": "2026-10-30T13:16:31+0330",
+ "result": {
+  "screens": "5 frames, PNG + SVG",
+  "tokens": "2 token SVGs, 2 frames with unbound colours",
+  "code": "5 / 5 frames",
+  "anatomy": "0 component pages"
+ }
+}

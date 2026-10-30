@@ -36,7 +36,7 @@ def render(ws):
         lines.append("")
         for i, (pid, p) in enumerate(pages, 1):
             why = "" if p["why"] in ("rule", "named", "pick") else f"  ({p['why']})"
-            lines.append(f"{i:>3}. {MARK[p['export']]} {p['name']}{why}" + (f"  · ≈ {p['est']} screens" if p["est"] else ""))
+            lines.append(f"{i:>3}. {MARK[p['export']]} {p['name']}{why}" + (f"  · ≈ {p['est']} screen{'s' if p['est'] != 1 else ''}" if p["est"] else ""))
         lines.append("")
     return "\n".join(lines)
 

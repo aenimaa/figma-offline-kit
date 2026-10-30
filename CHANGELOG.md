@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.1 (2026-10-30)
+
+- A more visual README in English and Persian, with screenshots of the gallery, tokens, handoff and coverage page.
+- The demo team is now a made-up app ("Bloom") with real-looking screens, plus a demo dev handoff in `examples/handoff/`.
+- Gallery: the full-screen viewer has a solid background, so the page behind no longer shows through.
+- `kit.py pages` says "1 screen", not "1 screens".
+
 ## 1.0.0 (2026-10-29)
 
 First public release.

@@ -1,70 +1,82 @@
-# figma-offline-kit
+<p align="center">
+  <b>English</b> · <a href="README.fa.md">فارسی</a>
+</p>
 
-**Keep working when Figma or the internet is down.** This kit backs up your Figma team, or just the files you pick, to your own disk: every screen as an image, an offline gallery you can browse like the canvas, local `.fig` copies, your design tokens, and handoff packages for developers.
+<p align="center">
+  <img src="docs/images/hero.png" width="100%" alt="figma-offline-kit: Figma’s down? Your work isn’t. An offline gallery showing a Figma page as a map of its frames.">
+</p>
 
-It runs with any AI assistant (Claude, Gemini, Copilot, Cursor, ChatGPT…) or on its own. Python 3.10+, standard library only, nothing to install. Windows, macOS and Linux.
+<h1 align="center">figma-offline-kit</h1>
 
-[فارسی](README.fa.md)
+<p align="center">
+  Back up your Figma team to your own disk, and keep working when Figma or the internet is down.<br>
+  <sub>Free · open source · read-only in Figma · works with any AI assistant, or on its own</sub>
+</p>
+
+<p align="center">
+  <a href="https://github.com/aenimaa/figma-offline-kit/releases/latest"><img src="https://img.shields.io/github/v/release/aenimaa/figma-offline-kit?label=release&color=2457c9" alt="Latest release"></a>
+  <img src="https://img.shields.io/badge/python-3.10%2B-2457c9" alt="Python 3.10 or newer">
+  <img src="https://img.shields.io/badge/dependencies-none-2457c9" alt="No dependencies">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2457c9" alt="MIT license"></a><br>
+  <sub>Windows · macOS · Linux · <a href="examples/demo/Mobile%20App/Onboarding/index.html">See a demo gallery</a> (made-up app)</sub>
+</p>
 
 ---
 
-## What you get
+## 🚀 Start in a minute
 
-| | |
+| 🤖 With an AI assistant | ⌨️ On your own |
 |---|---|
-| **Screens** | every frame on the pages you choose, as PNG and SVG (PDF where Figma can't make an SVG), in folders by project → file → page → section |
-| **Offline gallery** | one `index.html` per file: grid, a map that shows where each frame sits on the canvas, page tree, filters, a full-screen viewer, links back to Figma |
-| **Local copies** | `.fig` / `.jam` / `.deck` / `.make` files saved by Figma desktop, so you can import the real file again |
-| **Design tokens** | your variables as `tokens.css` / `_tokens.scss`, a per-screen report of which tokens and styles each screen uses, and SVGs whose colours point at your tokens |
-| **Dev handoff** | for the pages a developer needs: per-frame pages with design, code, tokens and component anatomy |
-| **Coverage and archives** | a `COVERAGE.html` page that shows what the backup holds and what changed in Figma since, plus one tested archive per project |
+| Open this folder in Claude, Gemini, Copilot, Cursor or any other AI app, and say:<br><br>**“Back up my Figma team.”**<br><br>It reads [`AGENTS.md`](AGENTS.md), asks a few questions in one message, and runs the rest. | `python kit.py doctor`: what's ready<br>`python kit.py init`: a few questions<br>`python kit.py plan`: how much, how long<br>`python kit.py pages`: choose pages<br>`python kit.py run`: runs in the background<br>`python kit.py close`: check and pack |
 
-Try the gallery with made-up data: open [`examples/demo/Mobile App/Onboarding/index.html`](examples/demo/Mobile%20App/Onboarding/index.html) and [`examples/demo/COVERAGE.html`](examples/demo/COVERAGE.html).
+You need **Python 3.10+** and a read-only **[Figma token](docs/figma-token.md)**. The kit checks everything else and tells you what's missing.
 
-## What you need
+## 📦 What you get
 
-- **Python 3.10 or newer** ([python.org](https://www.python.org/downloads/)).
-- **A Figma personal access token**, read-only. [How to make one](docs/figma-token.md).
-- Optional: **Figma desktop** for local copies and dev handoff code; **7-Zip** or **WinRAR** for smaller archives; an AI with **desktop control** to save local copies for you; **Figma's MCP server** in your AI to read variables without an Enterprise plan.
+### 🗺️ An offline gallery for every file
 
-The kit checks all of this for you and says what's missing.
+Every frame as **PNG and SVG**, in folders by project, file, page and section. Browse them like the canvas: a map of where each frame sits, a page tree, filters, search, and a full-screen viewer. It opens from disk, no internet needed.
 
-## Start with an AI
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/gallery-map-dark.png">
+  <img src="docs/images/gallery-map-light.png" width="100%" alt="The offline gallery in map view: the Sign up section with Welcome, Email and Email taken screens, and Home beside it, laid out as on the Figma canvas.">
+</picture>
 
-Open this folder in your AI app and say: *"Back up my Figma team."*
+### 🎨 Design tokens next to every screen
 
-The AI reads [`AGENTS.md`](AGENTS.md) and walks you through it: a setup check, a handful of questions in one message, the plan, which pages to keep, then the backup. You answer questions and press Save where Figma needs a human. Claude, Gemini, Copilot and Cursor find their instructions on their own; for any other AI, tell it to read `AGENTS.md`.
+Your variables as `tokens.css` and `_tokens.scss`. For each screen, the tokens and styles it uses, and the colours bound to nothing. Token SVGs keep the picture and write colours as `var(--token, #hex)`. [More](docs/tokens.md)
 
-## Start on your own
+<img src="docs/images/viewer-tokens.png" width="100%" alt="The gallery viewer showing the Welcome screen, with a Tokens used panel listing --brand #5A78DC and --color-bg #EEEEFF.">
 
-```
-python kit.py doctor      # what's ready, and what you need to do
-python kit.py init        # a few questions; creates your workspace
-python kit.py plan        # what will be backed up, how long, how big
-python kit.py pages       # choose the pages, then: python kit.py pages --confirm
-python kit.py run         # starts in the background; keeps going if you close the window
-python kit.py status      # progress  (stop / resume to pause and continue)
-python kit.py close       # check everything, coverage page, archives
-```
+### 🧩 A handoff package for developers
 
-Optional steps, in any order after `run`:
+For the pages a developer needs: one page per frame with **Design · Code · Tokens · Anatomy**, Figma's own design-to-code output, and component specs. [More](docs/handoff.md)
 
-```
-python kit.py copies      # local .fig copies         → docs/local-copies.md
-python kit.py tokens      # design tokens              → docs/tokens.md
-python kit.py handoff     # a package for developers   → docs/handoff.md
-```
+<img src="docs/images/handoff-code.png" width="100%" alt="A handoff frame page for Welcome with the Code tab open, showing React and Tailwind code that uses var(--brand).">
 
-## How it works
+### ✅ Proof of what you have
 
-1. **Doctor** checks Python, the network, your token, Figma desktop and optional tools, and prints two lists: *I can do* and *You need to do*.
-2. **Interview**: one round of questions. What to back up (a team link, or file links), where, how to run it (all at once, project by project, or file by file), which pages, which formats and extras.
-3. **Plan** scans Figma and estimates screens, time and size.
-4. **Pages**: you see every page of every file with a ✔ or ✖ and choose. Archive pages and divider pages are skipped by default. The run waits until you confirm.
-5. **Run** exports in the background and survives closing the app or the AI. A failed file doesn't stop the run, outages are waited out, and `resume` continues where it stopped.
-6. **Close** verifies every screen and copy, checks which files changed in Figma since the backup (`refresh` re-exports them), writes the coverage page and packs tested archives.
+`COVERAGE.html` shows every project, file and page: what's backed up, what's left out and why, and which files changed in Figma since. Each project is packed into a tested archive.
 
-## Your workspace
+<img src="docs/images/coverage.png" width="100%" alt="The coverage page: files and pages with PNG, SVG and token counts, and a 'current as of' state for each file.">
+
+### 💾 And the real files
+
+Local **`.fig` / `.jam` / `.deck`** copies from Figma desktop, saved for you by an AI with desktop control, or with you pressing Save. Paced so Figma's bot checks don't kick in. [More](docs/local-copies.md)
+
+## ⚙️ How it works
+
+| | Step | What happens |
+|---|---|---|
+| 1 | **Doctor** | checks Python, network, token and tools; lists what's ready and what you need to do |
+| 2 | **Questions** | one round: a team link or file links, where to save, how to run, which pages and extras |
+| 3 | **Plan** | scans Figma and estimates screens, time and size |
+| 4 | **Pages** | every page with ✔ or ✖; archive and divider pages are left out until you say otherwise |
+| 5 | **Run** | exports in the background, survives closing the app, waits out outages, resumes |
+| 6 | **Close** | verifies everything, flags files changed in Figma, writes the coverage page, packs archives |
+
+<details>
+<summary><b>📁 What ends up on your disk</b></summary>
 
 ```
 <workspace>/
@@ -81,21 +93,20 @@ python kit.py handoff     # a package for developers   → docs/handoff.md
 └─ workstation/       REPORT.md (progress) · settings · logs · .env (your token)
 ```
 
-Galleries open straight from disk. If a browser refuses `file://` pages, serve the folder: `python -m http.server --directory "<workspace>/backup"`.
+If a browser won't open `file://` pages, serve the folder: `python -m http.server --directory "<workspace>/backup"`.
+</details>
 
-## Safe by design
+## 🔒 Safe by design
 
-- **Read-only in Figma.** The kit never edits, moves, shares or deletes anything in Figma.
+- **Read-only in Figma.** It never edits, moves, shares or deletes anything there.
 - **Your token stays on your disk**, in `workstation/.env`. It's never printed, logged or put in a report.
-- **Polite to Figma's servers:** at least 1.5 s between calls, rate limits honoured in full, local copies paced at about 40 a day so Figma's bot checks don't trigger.
+- **Polite to Figma:** at least 1.5 s between calls, rate limits honoured in full, about 40 local copies a day.
 - **Nothing is deleted.** Refreshed files move to `temp/replaced/`.
 
-## Docs
+## 📚 Docs
 
-- [Figma token](docs/figma-token.md) · [Figma MCP servers](docs/figma-mcp.md) · [Local copies](docs/local-copies.md) · [Design tokens](docs/tokens.md) · [Dev handoff](docs/handoff.md)
-- [FAQ](docs/faq.md) · [Troubleshooting](docs/troubleshooting.md)
-- For AI agents: [AGENTS.md](AGENTS.md)
+[Figma token](docs/figma-token.md) · [Figma MCP servers](docs/figma-mcp.md) · [Local copies](docs/local-copies.md) · [Design tokens](docs/tokens.md) · [Dev handoff](docs/handoff.md) · [FAQ](docs/faq.md) · [Troubleshooting](docs/troubleshooting.md) · [Changelog](CHANGELOG.md)
 
-## License
+---
 
-MIT. See [LICENSE](LICENSE).
+<p align="center"><sub>MIT license · Vibe-coded by <a href="https://github.com/aenimaa">Nima Sh</a>, a product designer who didn’t want an outage to stop his work</sub></p>

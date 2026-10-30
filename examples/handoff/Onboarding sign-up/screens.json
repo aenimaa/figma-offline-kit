@@ -1,0 +1,112 @@
+{
+ "key": "FAKEkeyAAA1",
+ "name": "Onboarding",
+ "project": "Mobile App",
+ "dir": "",
+ "base": ".",
+ "pages": [
+  {
+   "id": "0:3",
+   "name": "Screens",
+   "dir": "Screens"
+  }
+ ],
+ "screens": [
+  {
+   "id": "2:1",
+   "name": "Welcome",
+   "type": "FRAME",
+   "page": "Screens",
+   "pid": "0:3",
+   "section": "Sign up",
+   "x": 40,
+   "y": 80,
+   "w": 390,
+   "h": 844,
+   "n": 2
+  },
+  {
+   "id": "2:2",
+   "name": "Email",
+   "type": "FRAME",
+   "page": "Screens",
+   "pid": "0:3",
+   "section": "Sign up",
+   "x": 470,
+   "y": 80,
+   "w": 390,
+   "h": 844,
+   "n": 3
+  },
+  {
+   "id": "2:6",
+   "name": "Email taken",
+   "type": "FRAME",
+   "page": "Screens",
+   "pid": "0:3",
+   "section": "Sign up / Errors",
+   "x": 940,
+   "y": 120,
+   "w": 390,
+   "h": 844,
+   "n": 4
+  },
+  {
+   "id": "2:3",
+   "name": "Home",
+   "type": "FRAME",
+   "page": "Screens",
+   "pid": "0:3",
+   "section": "",
+   "x": 1500,
+   "y": 80,
+   "w": 390,
+   "h": 844,
+   "n": 5
+  },
+  {
+   "id": "2:7",
+   "name": "Icons",
+   "type": "GROUP",
+   "page": "Screens",
+   "pid": "0:3",
+   "section": "",
+   "x": 1500,
+   "y": 1000,
+   "w": 200,
+   "h": 120,
+   "n": 6
+  }
+ ],
+ "sections": [
+  {
+   "id": "2:0",
+   "name": "Sign up",
+   "page": "Screens",
+   "pid": "0:3",
+   "path": "Sign up",
+   "x": 0,
+   "y": 0,
+   "w": 1400,
+   "h": 1000
+  },
+  {
+   "id": "2:5",
+   "name": "Errors",
+   "page": "Screens",
+   "pid": "0:3",
+   "path": "Sign up / Errors",
+   "x": 900,
+   "y": 40,
+   "w": 480,
+   "h": 940
+  }
+ ],
+ "handoff": {
+  "name": "Onboarding sign-up",
+  "pages": [
+   "Screens"
+  ],
+  "prepared": "2026-10-30T13:16:31+0330"
+ }
+}

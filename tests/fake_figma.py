@@ -2,7 +2,9 @@
 
 Team "Example Team": Mobile App (Onboarding: design, Flows: FigJam) and Website (Landing: design).
 Landing has a very tall frame (PNG below @2x), a frame with no SVG render (→ PDF) and an empty frame."""
+import base64
 import json
+import os
 import struct
 import threading
 import zlib
@@ -10,6 +12,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 TOKEN = "figd_FAKE-test-token-0000"
+ASSETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo_assets")  # Bloom screens (tests/demo_art.py)
 TEAM_ID = "1234567890"
 NO_SVG = {"3:2", "3:3"}   # Figma returns no SVG render for these
 NO_PDF = {"3:3"}          # …and no PDF either: an empty frame
@@ -60,7 +63,7 @@ FILES = {
                   "pages": [page("0:1", "Page 1", [])]},
     "FAKEkeyCCC3": {"name": "Landing", "project": "102", "editorType": "figma", "lastModified": "2026-10-05T12:00:00Z",
                   "pages": [page("1:0", "Desktop", [
-                      frame("3:1", "Landing long", 1920, 9000), frame("3:2", "Hero video", 1440, 900, x=2000),
+                      frame("3:1", "Landing long", 1440, 4200), frame("3:2", "Hero video", 1440, 900, x=2000),
                       frame("3:3", "Empty", 1440, 900, x=3600)])]},
 }
 VARIABLES = {"FAKEkeyAAA1": {"meta": {
@@ -134,6 +137,10 @@ class Handler(BaseHTTPRequestHandler):
             _, key, name = parts
             nid, ext = name.rsplit(".", 1)
             n = _node(key, nid.replace("-", ":"))
+            art = os.path.join(ASSETS, nid + ".png")
+            if ext == "png" and os.path.exists(art):
+                with open(art, "rb") as f:
+                    return self._send(200, f.read(), "image/png")
             if ext == "png":
                 bb = n["absoluteBoundingBox"]
                 return self._send(200, _png(max(1, int(bb["width"] / 20)), max(1, int(bb["height"] / 20)), (90, 120, 220)), "image/png")
@@ -143,10 +150,16 @@ class Handler(BaseHTTPRequestHandler):
 
                 def draw(m):
                     hx = ["#%02X%02X%02X" % tuple(round(p["color"][k] * 255) for k in "rgb") for p in m.get("fills", [])]
-                    inner = "".join(f'<rect width="10" height="10" fill="{h}"/>' for h in hx) + "".join(draw(c) for c in m.get("children", []))
+                    inner = "".join(f'<rect width="10" height="10" fill="{h}" fill-opacity="0"/>' for h in hx) + "".join(draw(c) for c in m.get("children", []))
                     return f'<g data-node-id="{m["id"]}">{inner}</g>' if ids else f"<g>{inner}</g>"
+                pic = ""
+                if os.path.exists(art):  # the same picture as the PNG, so the gallery's SVG view matches
+                    with open(art, "rb") as f:
+                        pic = f'<image width="100%" height="100%" href="data:image/png;base64,{base64.b64encode(f.read()).decode()}"/>'
+                else:
+                    pic = f'<text x="20" y="60" font-size="40">{n["name"]}</text>'
                 svg = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{bb["width"]}" height="{bb["height"]}">'
-                       f'{draw(n)}<text x="20" y="60" font-size="40">{n["name"]}</text></svg>')
+                       f'{pic}{draw(n)}</svg>')
                 return self._send(200, svg.encode(), "image/svg+xml")
             return self._send(200, b"%PDF-1.4\n% fake\n%%EOF\n", "application/pdf")
         if self.headers.get("X-Figma-Token") != TOKEN:

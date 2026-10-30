@@ -1,0 +1,101 @@
+{
+ "about": "Design tokens per screen, made by figma-offline-kit. svg: raw = no colour bound to a variable, the raw SVG is the token SVG · ok = token SVG in screens/svg-tokens (method hex or render) · none = no SVG for this frame · gone = frame deleted in Figma since the backup.",
+ "file_key": "FAKEkeyAAA1",
+ "file": "Onboarding",
+ "screens": {
+  "2:1": {
+   "n": 2,
+   "tokens": {
+    "color": [
+     {
+      "css": "--brand",
+      "figma": "color/brand",
+      "ds": "Onboarding",
+      "count": 1,
+      "value": "#5A78DC"
+     },
+     {
+      "css": "--color-bg",
+      "figma": "color/bg",
+      "ds": "Onboarding",
+      "count": 1,
+      "value": "#EEEEFF"
+     }
+    ]
+   },
+   "unbound_colors": [],
+   "svg": "ok",
+   "method": "hex",
+   "colors_tokenized": 2
+  },
+  "2:6": {
+   "n": 4,
+   "tokens": {},
+   "unbound_colors": [],
+   "svg": "raw",
+   "colors_tokenized": 0
+  },
+  "2:3": {
+   "n": 5,
+   "tokens": {},
+   "unbound_colors": [
+    {
+     "hex": "#FF0000",
+     "count": 1,
+     "layers": [
+      "Home"
+     ]
+    }
+   ],
+   "svg": "raw",
+   "colors_tokenized": 0
+  },
+  "2:7": {
+   "n": 6,
+   "tokens": {},
+   "unbound_colors": [],
+   "svg": "raw",
+   "colors_tokenized": 0
+  },
+  "2:2": {
+   "n": 3,
+   "tokens": {
+    "color": [
+     {
+      "css": "--brand",
+      "figma": "color/brand",
+      "ds": "Onboarding",
+      "count": 1,
+      "value": "#5A78DC"
+     }
+    ]
+   },
+   "unbound_colors": [
+    {
+     "hex": "#5A78DC",
+     "count": 1,
+     "layers": [
+      "Logo"
+     ]
+    }
+   ],
+   "svg": "ok",
+   "method": "render",
+   "colors_tokenized": 1
+  }
+ },
+ "figma_last_modified": "2026-10-01T10:00:00Z",
+ "generated": "2026-10-30T13:16:31+0330",
+ "summary": {
+  "screens": 5,
+  "token_svgs": 2,
+  "raw_is_token_svg": 3,
+  "by_method": {
+   "hex": 1,
+   "render": 1
+  },
+  "colors_tokenized": 3,
+  "unresolved_variables": 0,
+  "screens_with_unbound_colors": 2
+ }
+}
