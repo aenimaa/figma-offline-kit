@@ -1,43 +1,408 @@
 <!doctype html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>figma-offline-kit demo</title>
-<meta name="description" content="Live demo of figma-offline-kit: an offline gallery, coverage page and dev handoff made from a made-up Figma team.">
+<title>figma-offline-kit</title>
+<meta name="description" content="از تیم فیگما روی دیسک خودتان نسخهٔ پشتیبان بگیرید و آفلاین در آن بگردید. Back up your Figma team to your own disk and browse it offline.">
+<meta property="og:title" content="figma-offline-kit">
+<meta property="og:description" content="Back up your Figma team to your own disk, and keep working when Figma or the internet is down.">
 <meta property="og:image" content="https://aenimaa.github.io/figma-offline-kit/docs/images/hero.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#f6f7f9; --card:#fff; --text:#14171c; --muted:#5b6370; --line:#e3e6eb; --accent:#2457c9; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg:#0e1116; --card:#171b22; --text:#e8ebf0; --muted:#9aa3b0; --line:#262c36; --accent:#7ea2ff; }
+  :root {
+    --bg:#0F1218; --bg2:#141821; --card:#171C25; --line:#2A303B;
+    --text:#F2F4F7; --muted:#B8C0CC; --dim:#8A93A1;
+    --accent:#8FB0FF; --accent-strong:#2457C9; --chip:#1D2A4A; --chip-text:#A9C1FF;
+    --ok:#7FD6A4;
   }
   * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
-  main { max-width:880px; margin:0 auto; padding:32px 16px 48px; }
-  img.hero { width:100%; border-radius:12px; border:1px solid var(--line); display:block; }
-  h1 { font-size:28px; margin:28px 0 4px; }
-  p { color:var(--muted); margin:0 0 24px; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; }
-  a.card { display:block; padding:16px; background:var(--card); border:1px solid var(--line); border-radius:10px; color:inherit; text-decoration:none; }
-  a.card:hover { border-color:var(--accent); }
-  a.card b { display:block; color:var(--accent); margin-bottom:2px; }
-  a.card span { color:var(--muted); font-size:14px; }
-  footer { margin-top:32px; font-size:14px; color:var(--muted); }
-  footer a { color:var(--accent); }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--bg); color:var(--text); font:17px/1.75 "Vazirmatn",Tahoma,system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+  html[lang=en] body { line-height:1.6; }
+  html[lang=fa] [lang=en], html[lang=en] [lang=fa] { display:none !important; }
+  a { color:var(--accent); }
+  img { max-width:100%; height:auto; display:block; }
+  code, pre { font-family:ui-monospace,"Cascadia Mono",Consolas,monospace; direction:ltr; unicode-bidi:isolate; }
+  code { background:var(--chip); color:var(--chip-text); padding:1px 6px; border-radius:5px; font-size:.86em; }
+  .wrap { max-width:1120px; margin:0 auto; padding:0 16px; }
+  section { padding:72px 0; border-top:1px solid var(--line); }
+  h2 { font-size:clamp(26px,4vw,34px); line-height:1.3; margin:0 0 8px; letter-spacing:-.01em; }
+  h3 { font-size:20px; margin:0 0 6px; }
+  .lead { color:var(--muted); margin:0 0 32px; max-width:680px; }
+  .kicker { display:flex; align-items:center; gap:10px; font-weight:600; color:var(--accent); }
+  .kicker i { width:10px; height:10px; border-radius:3px; background:currentColor; }
+
+  /* top bar */
+  .top { position:sticky; top:0; z-index:5; background:rgba(15,18,24,.85); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+  .top .wrap { display:flex; align-items:center; justify-content:space-between; gap:12px; height:56px; }
+  .top nav { display:flex; gap:18px; font-size:15px; }
+  .top nav a { color:var(--muted); text-decoration:none; }
+  .top nav a:hover { color:var(--text); }
+  .lang { background:var(--chip); color:var(--chip-text); border:0; border-radius:99px; padding:6px 14px; font:600 14px "Vazirmatn",system-ui,sans-serif; cursor:pointer; }
+  .lang:hover { background:#25355d; }
+
+  /* hero */
+  .hero { display:grid; grid-template-columns:1fr 1.35fr; gap:56px; align-items:center; padding:64px 16px 72px; }
+  .hero h1 { font-size:clamp(36px,5vw,52px); line-height:1.2; font-weight:800; letter-spacing:-.02em; margin:18px 0 16px; }
+  .hero p { font-size:clamp(18px,2.2vw,21px); color:var(--muted); margin:0 0 26px; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 28px; padding:0; list-style:none; }
+  .chips li { background:var(--chip); color:var(--chip-text); border-radius:99px; padding:4px 14px; font-size:15px; font-weight:600; }
+  .ctas { display:flex; flex-wrap:wrap; gap:10px; }
+  .btn { display:inline-flex; align-items:center; gap:8px; padding:11px 20px; border-radius:10px; font-weight:600; text-decoration:none; font-size:16px; border:1px solid var(--line); color:var(--text); background:var(--card); }
+  .btn:hover { border-color:var(--accent); }
+  .btn.primary { background:var(--accent-strong); border-color:var(--accent-strong); color:#fff; }
+  .btn.primary:hover { background:#2d66e6; }
+  .meta { color:var(--dim); font-size:14px; margin-top:16px; }
+  .shot { border-radius:14px; overflow:hidden; position:relative; border:1px solid var(--line); box-shadow:0 30px 80px rgba(0,0,0,.5); background:var(--bg2); }
+  .shot .bar { height:28px; background:#1A1F28; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:7px; padding:0 12px; direction:ltr; }
+  .shot .bar i { width:9px; height:9px; border-radius:50%; background:#3A414D; }
+
+  /* demo cards */
+  .cards { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+  a.card { display:flex; flex-direction:column; background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; color:inherit; text-decoration:none; transition:border-color .2s, transform .2s, box-shadow .2s; }
+  a.card:hover { border-color:var(--accent); transform:translateY(-3px); box-shadow:0 20px 50px rgba(0,0,0,.45); }
+  a.card .bar { height:26px; background:#1A1F28; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:6px; padding:0 12px; direction:ltr; }
+  a.card .bar i { width:8px; height:8px; border-radius:50%; background:#3A414D; }
+  a.card .thumb { aspect-ratio:16/9; overflow:hidden; background:var(--bg2); }
+  a.card .thumb img { width:100%; height:100%; object-fit:cover; object-position:top left; transition:transform .4s; }
+  a.card:hover .thumb img { transform:scale(1.03); }
+  a.card .body { display:flex; align-items:center; gap:14px; padding:16px 20px; }
+  a.card .ic { font-size:24px; }
+  a.card .t { flex:1; min-width:0; }
+  a.card b { display:block; color:var(--text); font-size:17px; }
+  a.card .d { color:var(--dim); font-size:15px; }
+  a.card em { font-style:normal; color:var(--accent); font-size:14px; font-weight:600; white-space:nowrap; }
+
+  /* features */
+  .feat { display:grid; grid-template-columns:1fr 1.3fr; gap:44px; align-items:center; margin:0 0 64px; }
+  .feat:last-child { margin-bottom:0; }
+  .feat.flip > .txt { order:2; }
+  .feat .txt p { color:var(--muted); margin:0 0 10px; }
+  .feat .tag { display:inline-block; font-size:28px; margin-bottom:6px; }
+  .feat .more { font-size:15px; }
+  .mini { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; margin-top:8px; }
+  .mini div { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; }
+  .mini p { color:var(--muted); margin:0; font-size:16px; }
+
+  /* steps */
+  .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; counter-reset:s; padding:0; margin:0; list-style:none; }
+  .steps li { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; }
+  .steps .n { display:inline-grid; place-items:center; width:30px; height:30px; border-radius:8px; background:var(--chip); color:var(--chip-text); font-weight:800; margin-bottom:10px; }
+  .steps p { color:var(--muted); margin:0; font-size:16px; }
+
+  /* start */
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:24px; min-width:0; }
+  .panel p { color:var(--muted); margin:0 0 12px; }
+  .say { background:var(--chip); color:var(--text); border-radius:10px; padding:14px 16px; font-weight:600; margin:0 0 12px; }
+  pre { background:#0B0E13; border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:0; overflow-x:auto; font-size:14px; line-height:1.7; text-align:left; }
+  pre .c { color:var(--dim); }
+  .need { margin-top:18px; color:var(--muted); font-size:16px; }
+
+  /* safety + faq */
+  .safe { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .safe div { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; }
+  .safe b { display:block; margin-bottom:4px; }
+  .safe p { color:var(--muted); margin:0; font-size:15px; }
+  details { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:0 20px; margin-bottom:10px; }
+  summary { cursor:pointer; padding:16px 0; font-weight:600; list-style:none; display:flex; justify-content:space-between; gap:12px; }
+  summary::-webkit-details-marker { display:none; }
+  summary::after { content:"+"; color:var(--accent); font-weight:800; }
+  details[open] summary::after { content:"−"; }
+  details p { color:var(--muted); margin:0 0 16px; }
+
+  footer { border-top:1px solid var(--line); padding:40px 0 56px; color:var(--dim); font-size:15px; }
+  footer .links { display:flex; flex-wrap:wrap; gap:6px 18px; margin-bottom:14px; }
+  footer a { color:var(--muted); }
+
+  .hero > .shot { transform:perspective(1600px) rotateY(-8deg); transform-origin:left center; }
+  html[lang=en] .hero > .shot { transform:perspective(1600px) rotateY(8deg); transform-origin:right center; }
+  @media (max-width:880px) {
+    .hero > .shot, html[lang=en] .hero > .shot { transform:none; }
+    .cards { grid-template-columns:1fr; }
+    .hero, .feat, .two { grid-template-columns:1fr; gap:28px; }
+    .feat.flip > .txt { order:0; }
+    .steps { grid-template-columns:1fr 1fr; }
+    .safe { grid-template-columns:1fr 1fr; }
+    .top nav { display:none; }
+    section { padding:56px 0; }
+  }
+  @media (max-width:520px) {
+    .steps, .safe { grid-template-columns:1fr; }
+    .btn { flex:1 1 auto; justify-content:center; }
+  }
 </style>
 </head>
 <body>
-<main>
-  <img class="hero" src="docs/images/hero.png" alt="figma-offline-kit: Figma's down? Your work isn't.">
-  <h1>figma-offline-kit demo</h1>
-  <p>What the kit makes from a Figma team, shown with a made-up app called Bloom. Everything here also opens from your own disk, with no internet.</p>
-  <div class="grid">
-    <a class="card" href="examples/demo/Mobile%20App/Onboarding/index.html"><b>Offline gallery: app</b><span>Grid, canvas map, page tree, viewer and tokens</span></a>
-    <a class="card" href="examples/demo/Website/Landing/index.html"><b>Offline gallery: website</b><span>Desktop pages, including a PDF fallback</span></a>
-    <a class="card" href="examples/demo/COVERAGE.html"><b>Coverage page</b><span>What the backup holds and what was left out</span></a>
-    <a class="card" href="examples/handoff/Onboarding%20sign-up/index.html"><b>Dev handoff</b><span>Design, code, tokens and anatomy per frame</span></a>
+
+<header class="top">
+  <div class="wrap">
+    <div class="kicker"><i></i>figma-offline-kit</div>
+    <nav>
+      <a href="#demo"><span lang="fa">نمونهٔ زنده</span><span lang="en">Live demo</span></a>
+      <a href="#features"><span lang="fa">چه می‌گیرید</span><span lang="en">What you get</span></a>
+      <a href="#start"><span lang="fa">شروع</span><span lang="en">Get started</span></a>
+      <a href="#faq"><span lang="fa">پرسش‌ها</span><span lang="en">FAQ</span></a>
+    </nav>
+    <button class="lang" id="lang" type="button"><span lang="fa">English</span><span lang="en">فارسی</span></button>
   </div>
-  <footer>Get the kit on <a href="https://github.com/aenimaa/figma-offline-kit">GitHub</a> · free, open source, MIT</footer>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div>
+      <div class="kicker"><i></i><span lang="fa">رایگان · متن‌باز · MIT</span><span lang="en">Free · open source · MIT</span></div>
+      <h1><span lang="fa">فیگما قطع شد؟<br>کارتان متوقف نمی‌شود</span><span lang="en">Figma’s down?<br>Your work isn’t.</span></h1>
+      <p lang="fa">از تیم فیگما، یا فقط فایل‌هایی که می‌خواهید، روی دیسک خودتان نسخهٔ پشتیبان بگیرید و آفلاین، مثل بوم فیگما، در آن بگردید.</p>
+      <p lang="en">Back up your Figma team, or just the files you pick, to your own disk, and browse it offline like the canvas.</p>
+      <ul class="chips" lang="fa"><li>PNG + SVG</li><li>گالری آفلاین</li><li>فایل fig</li><li>توکن‌های طراحی</li><li>تحویل به برنامه‌نویس</li></ul>
+      <ul class="chips" lang="en"><li>PNG + SVG</li><li>Offline gallery</li><li>.fig files</li><li>Design tokens</li><li>Dev handoff</li></ul>
+      <div class="ctas">
+        <a class="btn primary" href="#demo"><span lang="fa">نمونهٔ زنده را ببینید</span><span lang="en">See the live demo</span></a>
+        <a class="btn" href="https://github.com/aenimaa/figma-offline-kit"><span lang="fa">گیت‌هاب</span><span lang="en">GitHub</span></a>
+        <a class="btn" href="https://github.com/aenimaa/figma-offline-kit/archive/refs/heads/main.zip"><span lang="fa">دانلود ZIP</span><span lang="en">Download ZIP</span></a>
+      </div>
+      <div class="meta"><span lang="fa">ویندوز · مک · لینوکس · پایتون ۳٫۱۰+ · بدون نصب هیچ پکیجی</span><span lang="en">Windows · macOS · Linux · Python 3.10+ · nothing to install</span></div>
+    </div>
+    <div class="shot"><div class="bar"><i></i><i></i><i></i></div>
+      <img src="docs/images/gallery-map-dark.png" width="2560" height="1600" alt="گالری آفلاین در نمای نقشه، با صفحه‌ها همان‌جا که روی بوم فیگما هستند / The offline gallery in map view">
+    </div>
+  </div>
+
+  <section id="demo">
+    <div class="wrap">
+      <h2><span lang="fa">نمونهٔ زنده</span><span lang="en">Live demo</span></h2>
+      <p class="lead" lang="fa">خروجی واقعی کیت از یک تیم ساختگی به اسم Bloom. همین صفحه‌ها روی دیسک شما هم بدون اینترنت باز می‌شوند.</p>
+      <p class="lead" lang="en">The kit’s real output for a made-up team called Bloom. On your disk, the same pages open with no internet.</p>
+      <div class="cards">
+        <a class="card" href="examples/demo/Mobile%20App/Onboarding/index.html">
+          <div class="bar"><i></i><i></i><i></i></div>
+          <div class="thumb"><img src="site/img/demo-app.png" width="2560" height="1600" loading="lazy" alt="The app gallery in grid view"></div>
+          <div class="body"><span class="ic">🗺️</span>
+            <div class="t"><b lang="fa">گالری آفلاین: اپ</b><b lang="en">Offline gallery: app</b>
+              <span class="d" lang="fa">شبکه، نقشهٔ بوم، درخت صفحه‌ها، نمایشگر و توکن‌ها</span><span class="d" lang="en">Grid, canvas map, page tree, viewer and tokens</span></div>
+            <em lang="fa">باز کنید ←</em><em lang="en">Open →</em></div>
+        </a>
+        <a class="card" href="examples/demo/Website/Landing/index.html">
+          <div class="bar"><i></i><i></i><i></i></div>
+          <div class="thumb"><img src="site/img/demo-web.png" width="2560" height="1600" loading="lazy" alt="The website gallery"></div>
+          <div class="body"><span class="ic">🖥️</span>
+            <div class="t"><b lang="fa">گالری آفلاین: وب‌سایت</b><b lang="en">Offline gallery: website</b>
+              <span class="d" lang="fa">صفحه‌های دسکتاپ، با جایگزین PDF وقتی SVG ساخته نمی‌شود</span><span class="d" lang="en">Desktop pages, with a PDF fallback when SVG can’t render</span></div>
+            <em lang="fa">باز کنید ←</em><em lang="en">Open →</em></div>
+        </a>
+        <a class="card" href="examples/demo/COVERAGE.html">
+          <div class="bar"><i></i><i></i><i></i></div>
+          <div class="thumb"><img src="site/img/demo-coverage.png" width="2560" height="1600" loading="lazy" alt="The coverage page"></div>
+          <div class="body"><span class="ic">✅</span>
+            <div class="t"><b lang="fa">صفحهٔ پوشش</b><b lang="en">Coverage page</b>
+              <span class="d" lang="fa">چه چیزی پشتیبان شده و چه چیزی و چرا کنار مانده</span><span class="d" lang="en">What the backup holds, and what was left out and why</span></div>
+            <em lang="fa">باز کنید ←</em><em lang="en">Open →</em></div>
+        </a>
+        <a class="card" href="examples/handoff/Onboarding%20sign-up/index.html">
+          <div class="bar"><i></i><i></i><i></i></div>
+          <div class="thumb"><img src="site/img/demo-handoff.png" width="2560" height="1600" loading="lazy" alt="The dev handoff gallery"></div>
+          <div class="body"><span class="ic">🧩</span>
+            <div class="t"><b lang="fa">تحویل به برنامه‌نویس</b><b lang="en">Dev handoff</b>
+              <span class="d" lang="fa">برای هر فریم: طراحی، کد، توکن‌ها و آناتومی</span><span class="d" lang="en">Per frame: design, code, tokens and anatomy</span></div>
+            <em lang="fa">باز کنید ←</em><em lang="en">Open →</em></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <h2><span lang="fa">چه چیزی تحویل می‌گیرید</span><span lang="en">What you get</span></h2>
+      <p class="lead" lang="fa">همه‌چیز روی دیسک خودتان، در پوشه‌هایی به ترتیب پروژه، فایل، صفحه و سکشن.</p>
+      <p class="lead" lang="en">Everything on your own disk, in folders by project, file, page and section.</p>
+
+      <div class="feat">
+        <div class="txt">
+          <span class="tag">🗺️</span>
+          <h3><span lang="fa">گالری آفلاین برای هر فایل</span><span lang="en">An offline gallery for every file</span></h3>
+          <p lang="fa">همهٔ فریم‌ها به‌صورت PNG و SVG. مثل بوم فیگما در آن‌ها بگردید: نقشه‌ای از جای هر فریم، درخت صفحه‌ها، فیلتر، جست‌وجو و نمایشگر تمام‌صفحه. از روی دیسک باز می‌شود و اینترنت لازم ندارد. با تم روشن و تیره.</p>
+          <p lang="en">Every frame as PNG and SVG. Browse them like the canvas: a map of where each frame sits, a page tree, filters, search and a full-screen viewer. It opens from disk, no internet needed, in light or dark.</p>
+        </div>
+        <div class="shot"><img src="docs/images/gallery-map-light.png" width="2560" height="1600" loading="lazy" alt="Offline gallery, map view, light theme"></div>
+      </div>
+
+      <div class="feat flip">
+        <div class="txt">
+          <span class="tag">🎨</span>
+          <h3><span lang="fa">توکن‌های طراحی کنار هر صفحه</span><span lang="en">Design tokens next to every screen</span></h3>
+          <p lang="fa">متغیرهای شما به‌صورت <code>tokens.css</code> و <code>_tokens.scss</code>. برای هر صفحه، توکن‌ها و استایل‌هایی که استفاده کرده و رنگ‌هایی که به هیچ توکنی وصل نیستند.</p>
+          <p lang="en">Your variables as <code>tokens.css</code> and <code>_tokens.scss</code>. For each screen, the tokens and styles it uses, and the colours bound to nothing.</p>
+          <a class="more" href="https://github.com/aenimaa/figma-offline-kit/blob/main/docs/tokens.md"><span lang="fa">بیشتر ←</span><span lang="en">More →</span></a>
+        </div>
+        <div class="shot"><img src="site/img/viewer-tokens.png" width="2560" height="1600" loading="lazy" alt="Gallery viewer with the tokens panel"></div>
+      </div>
+
+      <div class="feat">
+        <div class="txt">
+          <span class="tag">🧩</span>
+          <h3><span lang="fa">بستهٔ تحویل به برنامه‌نویس</span><span lang="en">A handoff package for developers</span></h3>
+          <p lang="fa">برای صفحه‌هایی که برنامه‌نویس لازم دارد: برای هر فریم یک صفحه با طراحی، کد، توکن‌ها و آناتومی، خروجی design-to-code خود فیگما و مشخصات کامپوننت‌ها.</p>
+          <p lang="en">For the pages a developer needs: one page per frame with design, code, tokens and anatomy, Figma’s own design-to-code output, and component specs.</p>
+          <a class="more" href="https://github.com/aenimaa/figma-offline-kit/blob/main/docs/handoff.md"><span lang="fa">بیشتر ←</span><span lang="en">More →</span></a>
+        </div>
+        <div class="shot"><img src="site/img/handoff-code.png" width="2560" height="1600" loading="lazy" alt="Handoff frame page with the code tab open"></div>
+      </div>
+
+      <div class="feat flip">
+        <div class="txt">
+          <span class="tag">✅</span>
+          <h3><span lang="fa">گزارشی از آنچه دارید</span><span lang="en">Proof of what you have</span></h3>
+          <p lang="fa">صفحهٔ <code>COVERAGE.html</code> همهٔ پروژه‌ها، فایل‌ها و صفحه‌ها را نشان می‌دهد: چه چیزی پشتیبان شده، چه چیزی و چرا کنار مانده، و کدام فایل‌ها از آن به بعد در فیگما عوض شده‌اند. هر پروژه هم در یک آرشیو آزموده بسته می‌شود.</p>
+          <p lang="en"><code>COVERAGE.html</code> shows every project, file and page: what’s backed up, what’s left out and why, and which files changed in Figma since. Each project is packed into a tested archive.</p>
+        </div>
+        <div class="shot"><img src="site/img/demo-coverage.png" width="2560" height="1600" loading="lazy" alt="Coverage page"></div>
+      </div>
+
+      <div class="mini">
+        <div>
+          <h3>💾 <span lang="fa">و خود فایل‌ها</span><span lang="en">And the real files</span></h3>
+          <p lang="fa">نسخه‌های محلی fig، jam و deck از فیگمای دسکتاپ. هوش مصنوعیِ دارای کنترل دسکتاپ ذخیره‌شان می‌کند، یا خودتان Save را می‌زنید.</p>
+          <p lang="en">Local <code>.fig</code>, <code>.jam</code> and <code>.deck</code> copies from Figma desktop, saved by an AI with desktop control, or by you pressing Save.</p>
+        </div>
+        <div>
+          <h3>🔄 <span lang="fa">به‌روز ماندن</span><span lang="en">Stays current</span></h3>
+          <p lang="fa">فایل‌هایی که بعد از پشتیبان‌گیری در فیگما عوض شده‌اند پیدا می‌شوند و دوباره خروجی می‌گیرند، بدون اینکه چیزی پاک شود.</p>
+          <p lang="en">Files changed in Figma since the backup are found and exported again, without deleting anything.</p>
+        </div>
+        <div>
+          <h3>📂 <span lang="fa">فقط آنچه لازم دارید</span><span lang="en">Only what you need</span></h3>
+          <p lang="fa">کل تیم یا فقط چند فایل با لینک. صفحه‌ها را تک‌تک انتخاب کنید؛ صفحه‌های آرشیو و جداکننده خودبه‌خود کنار می‌مانند.</p>
+          <p lang="en">A whole team or just a few files by link. Pick pages one by one; archive and divider pages are left out by default.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <h2><span lang="fa">چطور کار می‌کند</span><span lang="en">How it works</span></h2>
+      <p class="lead" lang="fa">هوش مصنوعی فقط راه‌اندازی را انجام می‌دهد. خود پشتیبان‌گیری پایتون خالص است و توکن هوش مصنوعی مصرف نمی‌کند.</p>
+      <p class="lead" lang="en">An AI only does the setup. The backup itself is plain Python, so it uses no AI tokens.</p>
+      <ol class="steps">
+        <li><span class="n"><span lang="fa">۱</span><span lang="en">1</span></span><h3><span lang="fa">بررسی</span><span lang="en">Doctor</span></h3><p lang="fa">پایتون، اینترنت، توکن و ابزارها را بررسی می‌کند و می‌گوید چه کاری باید بکنید.</p><p lang="en">Checks Python, network, token and tools, and lists what you need to do.</p></li>
+        <li><span class="n"><span lang="fa">۲</span><span lang="en">2</span></span><h3><span lang="fa">پرسش‌ها</span><span lang="en">Questions</span></h3><p lang="fa">یک دور سؤال: لینک تیم یا فایل‌ها، محل ذخیره، نحوهٔ اجرا و افزونه‌ها.</p><p lang="en">One round: a team link or file links, where to save, how to run, which extras.</p></li>
+        <li><span class="n"><span lang="fa">۳</span><span lang="en">3</span></span><h3><span lang="fa">برنامه</span><span lang="en">Plan</span></h3><p lang="fa">فیگما را می‌گردد و تعداد صفحه‌ها، زمان و حجم را تخمین می‌زند.</p><p lang="en">Scans Figma and estimates screens, time and size.</p></li>
+        <li><span class="n"><span lang="fa">۴</span><span lang="en">4</span></span><h3><span lang="fa">صفحه‌ها</span><span lang="en">Pages</span></h3><p lang="fa">همهٔ صفحه‌ها با ✔ یا ✖؛ تا شما تأیید نکنید، اجرا شروع نمی‌شود.</p><p lang="en">Every page with ✔ or ✖; the run waits until you confirm.</p></li>
+        <li><span class="n"><span lang="fa">۵</span><span lang="en">5</span></span><h3><span lang="fa">اجرا</span><span lang="en">Run</span></h3><p lang="fa">در پس‌زمینه خروجی می‌گیرد، با بستن برنامه متوقف نمی‌شود و قطعی‌ها را صبر می‌کند.</p><p lang="en">Exports in the background, survives closing the app, waits out outages.</p></li>
+        <li><span class="n"><span lang="fa">۶</span><span lang="en">6</span></span><h3><span lang="fa">پایان</span><span lang="en">Close</span></h3><p lang="fa">همه‌چیز را وارسی می‌کند، صفحهٔ پوشش را می‌سازد و آرشیوها را می‌بندد.</p><p lang="en">Verifies everything, writes the coverage page and packs archives.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="start">
+    <div class="wrap">
+      <h2><span lang="fa">شروع در یک دقیقه</span><span lang="en">Start in a minute</span></h2>
+      <p class="lead" lang="fa">کیت را <a href="https://github.com/aenimaa/figma-offline-kit/archive/refs/heads/main.zip">دانلود کنید</a> و از حالت فشرده دربیاورید. بعد یکی از این دو راه:</p>
+      <p class="lead" lang="en"><a href="https://github.com/aenimaa/figma-offline-kit/archive/refs/heads/main.zip">Download the kit</a> and unzip it. Then pick one:</p>
+      <div class="two">
+        <div class="panel">
+          <h3>🤖 <span lang="fa">با دستیار هوش مصنوعی</span><span lang="en">With an AI assistant</span></h3>
+          <p lang="fa">پوشه را در یک برنامهٔ هوش مصنوعی که می‌تواند در پوشه‌ها دستور اجرا کند باز کنید (مثل Claude Code، Cursor، Copilot یا Gemini CLI) و بنویسید:</p>
+          <p lang="en">Open the folder in an AI app that can run commands in a folder (such as Claude Code, Cursor, Copilot or Gemini CLI), and say:</p>
+          <div class="say"><span lang="fa">«از تیم فیگمای من نسخهٔ پشتیبان بگیر.»</span><span lang="en">“Back up my Figma team.”</span></div>
+          <p lang="fa">دستیار <code>AGENTS.md</code> را می‌خواند، سؤال‌ها را در یک پیام می‌پرسد و بقیه را انجام می‌دهد. اگر فارسی بنویسید، فارسی جواب می‌دهد.</p>
+          <p lang="en">It reads <code>AGENTS.md</code>, asks a few questions in one message, and runs the rest.</p>
+        </div>
+        <div class="panel">
+          <h3>⌨️ <span lang="fa">بدون هوش مصنوعی</span><span lang="en">On your own</span></h3>
+          <p lang="fa">در ترمینال، داخل همان پوشه:</p>
+          <p lang="en">In a terminal, inside the folder:</p>
+<pre>python kit.py doctor   <span class="c"># what's ready</span>
+python kit.py init     <span class="c"># a few questions</span>
+python kit.py plan     <span class="c"># how much, how long</span>
+python kit.py pages    <span class="c"># choose pages</span>
+python kit.py run      <span class="c"># runs in the background</span>
+python kit.py close    <span class="c"># check and pack</span></pre>
+        </div>
+      </div>
+      <p class="need" lang="fa">فقط پایتون ۳٫۱۰ یا جدیدتر و یک <a href="https://github.com/aenimaa/figma-offline-kit/blob/main/docs/figma-token.md">توکن فیگما</a> با دسترسی خواندن لازم است. کیت بقیه را خودش بررسی می‌کند.</p>
+      <p class="need" lang="en">You need Python 3.10+ and a read-only <a href="https://github.com/aenimaa/figma-offline-kit/blob/main/docs/figma-token.md">Figma token</a>. The kit checks everything else.</p>
+    </div>
+  </section>
+
+  <section id="safe">
+    <div class="wrap">
+      <h2><span lang="fa">ایمن از ابتدا</span><span lang="en">Safe by design</span></h2>
+      <p class="lead" lang="fa">کیت فقط کپی می‌گیرد؛ به کار شما در فیگما دست نمی‌زند.</p>
+      <p class="lead" lang="en">The kit only copies; it never touches your work in Figma.</p>
+      <div class="safe">
+        <div>🔒<b lang="fa">در فیگما فقط می‌خواند</b><b lang="en">Read-only in Figma</b><p lang="fa">هیچ‌وقت چیزی را ویرایش، جابه‌جا، اشتراک‌گذاری یا حذف نمی‌کند.</p><p lang="en">It never edits, moves, shares or deletes anything there.</p></div>
+        <div>🔑<b lang="fa">توکن روی دیسک خودتان</b><b lang="en">Your token stays local</b><p lang="fa">در <code>workstation/.env</code> می‌ماند و هیچ‌وقت چاپ یا در لاگ نوشته نمی‌شود.</p><p lang="en">It stays in <code>workstation/.env</code> and is never printed or logged.</p></div>
+        <div>🤝<b lang="fa">با فیگما مؤدب</b><b lang="en">Polite to Figma</b><p lang="fa">دست‌کم ۱٫۵ ثانیه بین درخواست‌ها و رعایت کامل محدودیت‌ها.</p><p lang="en">At least 1.5 s between calls, rate limits honoured in full.</p></div>
+        <div>🗂️<b lang="fa">چیزی پاک نمی‌شود</b><b lang="en">Nothing is deleted</b><p lang="fa">نسخهٔ قبلی فایل‌های به‌روزشده به <code>temp/replaced/</code> می‌رود.</p><p lang="en">Old copies of refreshed files move to <code>temp/replaced/</code>.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <h2><span lang="fa">پرسش‌های رایج</span><span lang="en">FAQ</span></h2>
+      <p class="lead"></p>
+      <details><summary><span lang="fa">حتماً هوش مصنوعی لازم است؟</span><span lang="en">Do I need an AI?</span></summary>
+        <p lang="fa">نه. هر قدم یک دستور <code>python kit.py …</code> است. هوش مصنوعی فقط کار را به گفت‌وگو تبدیل می‌کند، و اگر کنترل دسکتاپ داشته باشد، فایل‌های fig را هم برایتان ذخیره می‌کند.</p>
+        <p lang="en">No. Every step is a <code>python kit.py …</code> command. An AI makes it a conversation, and with desktop control it can also save the <code>.fig</code> copies for you.</p></details>
+      <details><summary><span lang="fa">چه پلنی از فیگما لازم است؟</span><span lang="en">Which Figma plan do I need?</span></summary>
+        <p lang="fa">هر پلنی برای صفحه‌ها، گالری، نسخه‌های محلی و تحویل به برنامه‌نویس کافی است. خواندن متغیرها از REST API پلن Enterprise می‌خواهد؛ در پلن‌های دیگر، از MCP فیگما یا خروجی متغیرهای خود فیگما استفاده می‌شود.</p>
+        <p lang="en">Any plan works for screens, galleries, local copies and handoff. Reading variables through the REST API needs Enterprise; on other plans, the kit uses Figma’s MCP or Figma’s own variables export.</p></details>
+      <details><summary><span lang="fa">چقدر طول می‌کشد و چه حجمی دارد؟</span><span lang="en">How long does it take, and how big is it?</span></summary>
+        <p lang="fa">دستور <code>plan</code> هر دو را تخمین می‌زند. به‌طور تقریبی: حدود ۱۰ صفحه در دقیقه برای PNG و SVG، و حدود ۰٫۶۵ مگابایت برای هر صفحه. نسخه‌های محلی به حدود ۴۰ فایل در روز محدودند.</p>
+        <p lang="en"><code>plan</code> estimates both. Roughly: about 10 screens a minute for PNG + SVG, and about 0.65 MB per screen. Local copies are limited to about 40 a day.</p></details>
+      <details><summary><span lang="fa">می‌توانم فقط چند فایل را پشتیبان بگیرم؟</span><span lang="en">Can I back up only some files?</span></summary>
+        <p lang="fa">بله. در سؤال‌ها به‌جای لینک تیم، لینک فایل‌ها را بدهید. صفحه‌های هر فایل را هم می‌توانید جدا انتخاب کنید.</p>
+        <p lang="en">Yes. In the interview, paste file links instead of a team link. You can also choose pages per file.</p></details>
+      <details><summary><span lang="fa">اگر برنامه یا لپ‌تاپ را ببندم چه می‌شود؟</span><span lang="en">Can I close the app or my laptop during the run?</span></summary>
+        <p lang="fa">بستن برنامه مشکلی ندارد و اجرا در پس‌زمینه ادامه پیدا می‌کند. اگر کامپیوتر خوابید یا ری‌استارت شد، <code>python kit.py resume</code> را بزنید.</p>
+        <p lang="en">Closing the app is fine: the run continues in the background. If the computer sleeps or restarts, run <code>python kit.py resume</code>.</p></details>
+      <details><summary><span lang="fa">چطور یک فایل را به فیگما برگردانم؟</span><span lang="en">How do I restore a file into Figma?</span></summary>
+        <p lang="fa">فایل fig را داخل فیگما بکشید، یا از منوی Import فیگما استفاده کنید.</p>
+        <p lang="en">Drag its <code>.fig</code> into Figma, or use Figma → Import.</p></details>
+    </div>
+  </section>
 </main>
+
+<footer>
+  <div class="wrap">
+    <div class="links">
+      <a href="https://github.com/aenimaa/figma-offline-kit"><span lang="fa">گیت‌هاب</span><span lang="en">GitHub</span></a>
+      <a href="https://github.com/aenimaa/figma-offline-kit/blob/main/README.fa.md" lang="fa">راهنمای فارسی</a>
+      <a href="https://github.com/aenimaa/figma-offline-kit/blob/main/README.md" lang="en">README</a>
+      <a href="https://github.com/aenimaa/figma-offline-kit/blob/main/docs/faq.md"><span lang="fa">همهٔ پرسش‌ها</span><span lang="en">Full FAQ</span></a>
+      <a href="https://github.com/aenimaa/figma-offline-kit/blob/main/docs/troubleshooting.md"><span lang="fa">رفع مشکل</span><span lang="en">Troubleshooting</span></a>
+      <a href="https://github.com/aenimaa/figma-offline-kit/blob/main/CHANGELOG.md"><span lang="fa">تغییرات</span><span lang="en">Changelog</span></a>
+      <a href="https://github.com/aenimaa/figma-offline-kit/issues"><span lang="fa">گزارش مشکل</span><span lang="en">Report a problem</span></a>
+    </div>
+    <div lang="fa">مجوز MIT · وایب‌کد شده توسط <a href="https://github.com/aenimaa">Nima Sh</a>، طراح محصولی که نمی‌خواست با قطعی اینترنت، کارش هم قطع شود</div>
+    <div lang="en">MIT license · Vibe-coded by <a href="https://github.com/aenimaa">Nima Sh</a>, a product designer who didn’t want an outage to stop his work</div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  function set(l, save) {
+    root.lang = l;
+    root.dir = l === 'fa' ? 'rtl' : 'ltr';
+    if (save) { try { localStorage.setItem('lang', l); } catch (e) {} }
+  }
+  var q = new URLSearchParams(location.search).get('lang');
+  var saved = null;
+  try { saved = localStorage.getItem('lang'); } catch (e) {}
+  var l = q || saved;
+  if (l === 'en' || l === 'fa') set(l, false);
+  document.getElementById('lang').addEventListener('click', function () {
+    set(root.lang === 'fa' ? 'en' : 'fa', true);
+  });
+})();
+</script>
 </body>
 </html>
