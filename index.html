@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>figma-offline-kit demo</title>
+<meta name="description" content="Live demo of figma-offline-kit: an offline gallery, coverage page and dev handoff made from a made-up Figma team.">
+<meta property="og:image" content="https://aenimaa.github.io/figma-offline-kit/docs/images/hero.png">
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --text:#14171c; --muted:#5b6370; --line:#e3e6eb; --accent:#2457c9; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0e1116; --card:#171b22; --text:#e8ebf0; --muted:#9aa3b0; --line:#262c36; --accent:#7ea2ff; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { max-width:880px; margin:0 auto; padding:32px 16px 48px; }
+  img.hero { width:100%; border-radius:12px; border:1px solid var(--line); display:block; }
+  h1 { font-size:28px; margin:28px 0 4px; }
+  p { color:var(--muted); margin:0 0 24px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; }
+  a.card { display:block; padding:16px; background:var(--card); border:1px solid var(--line); border-radius:10px; color:inherit; text-decoration:none; }
+  a.card:hover { border-color:var(--accent); }
+  a.card b { display:block; color:var(--accent); margin-bottom:2px; }
+  a.card span { color:var(--muted); font-size:14px; }
+  footer { margin-top:32px; font-size:14px; color:var(--muted); }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <img class="hero" src="docs/images/hero.png" alt="figma-offline-kit: Figma's down? Your work isn't.">
+  <h1>figma-offline-kit demo</h1>
+  <p>What the kit makes from a Figma team, shown with a made-up app called Bloom. Everything here also opens from your own disk, with no internet.</p>
+  <div class="grid">
+    <a class="card" href="examples/demo/Mobile%20App/Onboarding/index.html"><b>Offline gallery: app</b><span>Grid, canvas map, page tree, viewer and tokens</span></a>
+    <a class="card" href="examples/demo/Website/Landing/index.html"><b>Offline gallery: website</b><span>Desktop pages, including a PDF fallback</span></a>
+    <a class="card" href="examples/demo/COVERAGE.html"><b>Coverage page</b><span>What the backup holds and what was left out</span></a>
+    <a class="card" href="examples/handoff/Onboarding%20sign-up/index.html"><b>Dev handoff</b><span>Design, code, tokens and anatomy per frame</span></a>
+  </div>
+  <footer>Get the kit on <a href="https://github.com/aenimaa/figma-offline-kit">GitHub</a> · free, open source, MIT</footer>
+</main>
+</body>
+</html>

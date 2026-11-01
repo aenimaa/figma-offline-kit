@@ -24,6 +24,10 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2457c9" alt="MIT license"></a>
 </p>
 
+<div dir="rtl">
+<p align="center"><sub>ویندوز · مک · لینوکس · <a href="https://aenimaa.github.io/figma-offline-kit/">نمونهٔ زنده را ببینید</a> (اپ ساختگی)</sub></p>
+</div>
+
 ---
 
 <div dir="rtl">

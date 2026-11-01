@@ -18,7 +18,7 @@
   <img src="https://img.shields.io/badge/python-3.10%2B-2457c9" alt="Python 3.10 or newer">
   <img src="https://img.shields.io/badge/dependencies-none-2457c9" alt="No dependencies">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2457c9" alt="MIT license"></a><br>
-  <sub>Windows · macOS · Linux · <a href="examples/demo/Mobile%20App/Onboarding/index.html">See a demo gallery</a> (made-up app)</sub>
+  <sub>Windows · macOS · Linux · <a href="https://aenimaa.github.io/figma-offline-kit/">See the live demo</a> (made-up app)</sub>
 </p>
 
 ---
