@@ -1,5 +1,6 @@
 """Doctor: check the machine, the token, Figma desktop and the AI's own abilities, then say what the kit can do
 and what the user still needs to do. Never prints the token."""
+import json
 import os
 import platform
 import shutil
@@ -234,3 +235,19 @@ def render(r):
         for k, v in opt:
             lines.append(f"- **{LABELS.get(k, k)}**: {' '.join(v['fix'])}")
     return "\n".join(lines).rstrip() + "\n"
+
+
+def redact(text, ws=None):
+    """Hide the user's folders and Figma handle so doctor output can be pasted into a public issue."""
+    import re
+    subs = []
+    if ws:
+        subs.append((ws.root, "<workspace>"))
+    subs.append((os.path.expanduser("~"), "~"))
+    for path, label in subs:
+        for form in {path, path.replace("\\", "/"), json.dumps(path)[1:-1]}:
+            if len(form) > 3:
+                text = text.replace(form, label)
+    text = re.sub(r"(signed in as )[^),\"]+", r"\g<1><you>", text)
+    return text
+

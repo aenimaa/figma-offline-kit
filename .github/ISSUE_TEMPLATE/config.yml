@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Troubleshooting guide
+    url: https://github.com/aenimaa/figma-offline-kit/blob/main/docs/troubleshooting.md
+    about: Common messages and what to do about them.

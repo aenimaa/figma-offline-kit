@@ -20,4 +20,10 @@ Start with `python kit.py doctor` and `python kit.py status`: most problems show
 | **tokens: "use library variables not in the backup"** | the screens use variables published from another file. Add that file to the backup and import its variables |
 | **handoff: code skipped** | Figma desktop's local MCP server isn't answering ([Figma MCP](figma-mcp.md)). Everything else in the handoff is done; run the command again later |
 | **Windows: strange characters in the console** | the kit sets UTF-8 itself; if you pipe its output in PowerShell 5, write to a file from Python instead |
+| **start.bat: "needs Python 3.10 or newer"** | install Python from python.org and tick *Add python.exe to PATH* on the installer's first screen, then double-click again |
+| **macOS: "start.command can't be opened"** | it was downloaded from the internet: System Settings → Privacy & Security → *Open Anyway*, or run `bash start.command` in Terminal |
 | **Path too long (Windows)** | the kit uses long-path names; if another tool fails on them, choose a shorter workspace folder, e.g. `D:\fb` |
+
+## Still stuck?
+
+[Open an issue](https://github.com/aenimaa/figma-offline-kit/issues/new/choose) and paste the output of `python kit.py doctor --redact`. It hides your folders and your Figma name; check it before posting, and never paste your token.

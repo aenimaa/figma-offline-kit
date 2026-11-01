@@ -1,0 +1,48 @@
+name: Something doesn't work
+description: An error, a step that stops, or output that looks wrong.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. **Never paste your Figma token**, your `.env` file, or links to private Figma files.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: step
+    attributes:
+      label: Which step or command?
+      placeholder: e.g. start.bat · python kit.py run · tokens svgs
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Doctor output
+      description: |
+        Run `python kit.py doctor --redact` in the kit's folder and paste the result.
+        `--redact` hides your folders and your Figma name. Check it before posting.
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Error or last log lines (optional)
+      description: From the console, or `workstation/logs/run.log` in your workspace. Remove anything private.
+      render: text
+  - type: dropdown
+    id: how
+    attributes:
+      label: How do you run the kit?
+      options:
+        - Double-click (start.bat / start.command)
+        - With an AI assistant
+        - Commands in a terminal
+    validations:
+      required: true

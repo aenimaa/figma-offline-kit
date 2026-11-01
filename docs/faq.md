@@ -4,7 +4,10 @@
 No. It only reads. It never edits, moves, shares or deletes anything there.
 
 **Do I need an AI?**
-No. Every step is a command (`python kit.py …`). An AI makes it a conversation, and with desktop control it can also save the `.fig` copies for you.
+No. Double-click `start.bat` (Windows) or `start.command` (macOS) and answer the questions, or run the commands yourself (`python kit.py …`). An AI makes it a conversation, and with desktop control it can also save the `.fig` copies for you.
+
+**Which AI apps can run it?**
+Ones that can run commands on your computer: Claude Code or Claude desktop, Cursor, VS Code with Copilot agent mode, Gemini CLI, Codex. A chat in a browser tab (ChatGPT, Claude on the web) can't.
 
 **Which plan do I need?**
 Any Figma plan works for screens, galleries, local copies and handoff. Reading variables through the REST API needs Enterprise; on other plans, use Figma's MCP or Figma's own variables export ([design tokens](tokens.md)).

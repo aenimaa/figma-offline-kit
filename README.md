@@ -25,11 +25,30 @@
 
 ## 🚀 Start in a minute
 
-| 🤖 With an AI assistant | ⌨️ On your own |
-|---|---|
-| Open this folder in Claude, Gemini, Copilot, Cursor or any other AI app, and say:<br><br>**“Back up my Figma team.”**<br><br>It reads [`AGENTS.md`](AGENTS.md), asks a few questions in one message, and runs the rest. | `python kit.py doctor`: what's ready<br>`python kit.py init`: a few questions<br>`python kit.py plan`: how much, how long<br>`python kit.py pages`: choose pages<br>`python kit.py run`: runs in the background<br>`python kit.py close`: check and pack |
+**1 · Get the kit:** [download the ZIP](https://github.com/aenimaa/figma-offline-kit/archive/refs/heads/main.zip) and unzip it (or `git clone` this repo).
 
-You need **Python 3.10+** and a read-only **[Figma token](docs/figma-token.md)**. The kit checks everything else and tells you what's missing.
+**2 · Pick one way:**
+
+| 🖱️ Double-click | 🤖 With an AI assistant | ⌨️ In a terminal |
+|---|---|---|
+| **`start.bat`** on Windows, **`start.command`** on macOS.<br><br>It walks you through every step, picks up where you left off, and installs nothing. | Open the folder in an AI app that **can run commands on your computer**: Claude Code or Claude desktop, Cursor, VS Code with Copilot agent mode, Gemini CLI, Codex. Say:<br><br>**“Back up my Figma team.”**<br><br>It reads [`AGENTS.md`](AGENTS.md), asks a few questions in one message, and runs the rest. | `python kit.py start`: the same guided walk.<br><br>Or step by step: `doctor` · `init` · `plan` · `pages` · `run` · `close` (see [`AGENTS.md`](AGENTS.md)). |
+
+You need **Python 3.10+** (the start files link to it if it's missing) and a read-only **[Figma token](docs/figma-token.md)**. The kit checks everything else and tells you what's missing.
+
+<details>
+<summary>Notes: chat-only AI, macOS warning, Linux</summary>
+
+- **Chat-only AI** (ChatGPT or Claude in a browser tab) can't run the kit: it can't run commands on your computer. Use the double-click way instead.
+- **macOS blocks `start.command` the first time** because it was downloaded: open System Settings → Privacy & Security → *Open Anyway*, or run `bash start.command` in Terminal.
+- **Linux:** run `bash start.command`.
+</details>
+
+## 🧭 When you'd need it
+
+- **Figma or the internet is down**, and you still need the screens today.
+- **You lose access:** you leave a team or a client, a plan is downgraded, or an account is blocked.
+- **A developer needs specs** without a Figma seat.
+- **A record of a date:** what existed at a handover or a release, with a coverage page to prove it.
 
 ## 📦 What you get
 
@@ -63,6 +82,15 @@ For the pages a developer needs: one page per frame with **Design · Code · Tok
 ### 💾 And the real files
 
 Local **`.fig` / `.jam` / `.deck`** copies from Figma desktop, saved for you by an AI with desktop control, or with you pressing Save. Paced so Figma's bot checks don't kick in. [More](docs/local-copies.md)
+
+## 💳 Which Figma plan you need
+
+| What | Plan | Notes |
+|---|---|---|
+| Screens (PNG, SVG), offline gallery, coverage page, archives | any | a token with read scopes |
+| Local `.fig` / `.jam` / `.deck` copies | any | Figma desktop |
+| Design tokens by the REST API | Enterprise | other plans: Figma's MCP or Figma's own variables export ([tokens](docs/tokens.md)) |
+| Dev handoff | any | the code step needs Figma desktop's MCP server ([handoff](docs/handoff.md)) |
 
 ## ⚙️ How it works
 

@@ -1,4 +1,4 @@
-"""Command line: doctor · questions · init · plan · pages · run · resume · stop · status."""
+"""Command line: start · doctor · questions · init · plan · pages · run · resume · stop · status and the add-ons."""
 import argparse
 import getpass
 import json
@@ -6,7 +6,7 @@ import os
 import sys
 import time
 
-from . import VERSION, close, copies, doctor, gallery, handoff, interview, pages, plan, report, runner, tokens, variables
+from . import VERSION, close, copies, doctor, gallery, handoff, interview, pages, plan, report, runner, start, tokens, variables
 from .figapi import read_token
 from .util import read_json, utf8_console, write_json, write_text
 from .workspace import Workspace, remember, resolve
@@ -19,7 +19,8 @@ def cmd_doctor(a):
     md = doctor.render(r)
     if ws and ws.exists():
         report.update(ws, "doctor", md)
-    print(json.dumps(r, ensure_ascii=False, indent=1) if a.json else md)
+    out = json.dumps(r, ensure_ascii=False, indent=1) if a.json else md
+    print(doctor.redact(out, ws) if getattr(a, "redact", False) else out)
     return 0 if r["core_ready"] else 1
 
 
@@ -412,6 +413,20 @@ def cmd_status(a):
     return 0
 
 
+def cmd_start(a):
+    try:
+        return start.run(a.workspace)
+    except (KeyboardInterrupt, EOFError):
+        print("\nStopped. Start again any time: it picks up where you left off.")
+        return 1
+    finally:
+        if os.environ.get("FOK_PAUSE") and sys.stdin.isatty():
+            try:
+                input("\nPress Enter to close this window.")
+            except (KeyboardInterrupt, EOFError):
+                pass
+
+
 def main(argv=None):
     utf8_console()
     p = argparse.ArgumentParser(prog="kit.py", description=f"figma-offline-kit {VERSION}: back up a Figma team for offline work.")
@@ -425,9 +440,11 @@ def main(argv=None):
         s.set_defaults(fn=fn)
         return s
 
+    add("start", cmd_start, "guided start: walks you through every step (what start.bat / start.command run)")
     d = add("doctor", cmd_doctor, "check the machine, token and tools")
     d.add_argument("--ai", default="", help="what the AI can do, e.g. desktop-control=yes,figma-mcp=no")
     d.add_argument("--offline", action="store_true", help="skip network checks")
+    d.add_argument("--redact", action="store_true", help="hide your folders and Figma name, for sharing in an issue")
     add("questions", cmd_questions, "print the interview questions")
     add("init", cmd_init, "answer the interview and create the workspace").add_argument(
         "--answers", help="JSON file with the answers (keys = question ids)")

@@ -29,7 +29,7 @@
   code, pre { font-family:ui-monospace,"Cascadia Mono",Consolas,monospace; direction:ltr; unicode-bidi:isolate; }
   code { background:var(--chip); color:var(--chip-text); padding:1px 6px; border-radius:5px; font-size:.86em; }
   .wrap { max-width:1120px; margin:0 auto; padding:0 16px; }
-  section { padding:72px 0; border-top:1px solid var(--line); }
+  section { padding:72px 0; border-top:1px solid var(--line); scroll-margin-top:56px; }
   h2 { font-size:clamp(26px,4vw,34px); line-height:1.3; margin:0 0 8px; letter-spacing:-.01em; }
   h3 { font-size:20px; margin:0 0 6px; }
   .lead { color:var(--muted); margin:0 0 32px; max-width:680px; }
@@ -96,6 +96,8 @@
 
   /* start */
   .two { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .panel.hl { border-color:var(--accent-strong); margin-bottom:14px; background:linear-gradient(180deg,#1A2338,var(--card)); }
+  .panel.hl p:last-child { margin:0; }
   .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:24px; min-width:0; }
   .panel p { color:var(--muted); margin:0 0 12px; }
   .say { background:var(--chip); color:var(--text); border-radius:10px; padding:14px 16px; font-weight:600; margin:0 0 12px; }
@@ -302,13 +304,18 @@
   <section id="start">
     <div class="wrap">
       <h2><span lang="fa">شروع در یک دقیقه</span><span lang="en">Start in a minute</span></h2>
-      <p class="lead" lang="fa">کیت را <a href="https://github.com/aenimaa/figma-offline-kit/archive/refs/heads/main.zip">دانلود کنید</a> و از حالت فشرده دربیاورید. بعد یکی از این دو راه:</p>
+      <p class="lead" lang="fa">کیت را <a href="https://github.com/aenimaa/figma-offline-kit/archive/refs/heads/main.zip">دانلود کنید</a> و از حالت فشرده دربیاورید. بعد یکی از این سه راه:</p>
       <p class="lead" lang="en"><a href="https://github.com/aenimaa/figma-offline-kit/archive/refs/heads/main.zip">Download the kit</a> and unzip it. Then pick one:</p>
+      <div class="panel hl">
+        <h3>🖱️ <span lang="fa">با دوبار کلیک (ساده‌ترین)</span><span lang="en">Double-click (the easiest)</span></h3>
+        <p lang="fa">در ویندوز <code>start.bat</code> و در مک <code>start.command</code> را باز کنید. قدم‌به‌قدم سؤال می‌پرسد، از همان جایی که مانده‌اید ادامه می‌دهد و چیزی نصب نمی‌کند. اگر پایتون نصب نباشد، صفحهٔ دانلودش را باز می‌کند.</p>
+        <p lang="en">Open <code>start.bat</code> on Windows or <code>start.command</code> on macOS. It asks one step at a time, picks up where you left off, and installs nothing. If Python is missing, it opens the download page.</p>
+      </div>
       <div class="two">
         <div class="panel">
           <h3>🤖 <span lang="fa">با دستیار هوش مصنوعی</span><span lang="en">With an AI assistant</span></h3>
-          <p lang="fa">پوشه را در یک برنامهٔ هوش مصنوعی که می‌تواند در پوشه‌ها دستور اجرا کند باز کنید (مثل Claude Code، Cursor، Copilot یا Gemini CLI) و بنویسید:</p>
-          <p lang="en">Open the folder in an AI app that can run commands in a folder (such as Claude Code, Cursor, Copilot or Gemini CLI), and say:</p>
+          <p lang="fa">پوشه را در برنامه‌ای باز کنید که می‌تواند روی کامپیوترتان دستور اجرا کند (Claude Code یا Claude دسکتاپ، Cursor، Copilot در حالت agent، Gemini CLI یا Codex) و بنویسید:</p>
+          <p lang="en">Open the folder in an AI app that can run commands on your computer (Claude Code or Claude desktop, Cursor, Copilot agent mode, Gemini CLI, Codex), and say:</p>
           <div class="say"><span lang="fa">«از تیم فیگمای من نسخهٔ پشتیبان بگیر.»</span><span lang="en">“Back up my Figma team.”</span></div>
           <p lang="fa">دستیار <code>AGENTS.md</code> را می‌خواند، سؤال‌ها را در یک پیام می‌پرسد و بقیه را انجام می‌دهد. اگر فارسی بنویسید، فارسی جواب می‌دهد.</p>
           <p lang="en">It reads <code>AGENTS.md</code>, asks a few questions in one message, and runs the rest.</p>
@@ -317,7 +324,9 @@
           <h3>⌨️ <span lang="fa">بدون هوش مصنوعی</span><span lang="en">On your own</span></h3>
           <p lang="fa">در ترمینال، داخل همان پوشه:</p>
           <p lang="en">In a terminal, inside the folder:</p>
-<pre>python kit.py doctor   <span class="c"># what's ready</span>
+<pre>python kit.py start    <span class="c"># guided, step by step</span>
+<span class="c"># or one at a time:</span>
+python kit.py doctor   <span class="c"># what's ready</span>
 python kit.py init     <span class="c"># a few questions</span>
 python kit.py plan     <span class="c"># how much, how long</span>
 python kit.py pages    <span class="c"># choose pages</span>

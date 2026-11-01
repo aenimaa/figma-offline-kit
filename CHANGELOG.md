@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 (2026-11-01)
+
+- **Double-click start:** `start.bat` (Windows) and `start.command` (macOS, Linux) find Python, or open its download page, then run the new `python kit.py start`: a guided walk through setup, check, scan, pages and backup that picks up where you left off.
+- **`doctor --redact`** hides your folders and Figma name, so the output can go into a public issue.
+- **Issue template** that asks for the redacted doctor output.
+- **README:** download-and-double-click first, which AI apps can run the kit, which Figma plan you need, and when you'd need a backup.
+- **Live demo site** at aenimaa.github.io/figma-offline-kit, in Persian and English.
+
 ## 1.0.1 (2026-10-30)
 
 - A more visual README in English and Persian, with screenshots of the gallery, tokens, handoff and coverage page.

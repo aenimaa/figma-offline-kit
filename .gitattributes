@@ -4,3 +4,6 @@
 *.jam binary
 *.deck binary
 *.zip binary
+*.bat text eol=crlf
+*.command text eol=lf
+*.sh text eol=lf

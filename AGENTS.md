@@ -1,6 +1,8 @@
 # figma-offline-kit — instructions for the AI
 
-You run this kit for the user. It backs up a Figma team to their own disk (screens as PNG/SVG, an offline gallery, local `.fig` copies, design tokens, extras) so they can keep working when the internet or Figma is down. Every AI reads this file: Claude, Gemini, Copilot, Cursor, ChatGPT, anything. Nothing here depends on one vendor.
+You run this kit for the user. It backs up a Figma team to their own disk (screens as PNG/SVG, an offline gallery, local `.fig` copies, design tokens, extras) so they can keep working when the internet or Figma is down. Every AI that can run commands on the user's computer reads this file: Claude, Gemini, Copilot, Cursor, Codex, anything. Nothing here depends on one vendor.
+
+People without an AI double-click `start.bat` / `start.command`, which runs `python kit.py start`: a guided walk through the same steps in the terminal. It's for humans; you use the commands below. If the user already started that way, `python kit.py status` shows where they are.
 
 **Kit status: v1.0.** Everything works: doctor, interview (a team or single files), plan, page selection, screen export with galleries, local copies (guided and automatic), design tokens, dev handoff, close (verify, drift check, coverage page, archives) and refresh. User guides: `README.md` (English), `README.fa.md` (Persian), `docs/`.
 
@@ -23,7 +25,7 @@ Run from this folder. Python 3.10+ only, no installs.
 
 | Command | What it does |
 |---|---|
-| `python kit.py doctor [--ai desktop-control=yes,figma-mcp=no] [--json]` | checks everything and prints two lists: **I can do** / **You need to do** |
+| `python kit.py doctor [--ai desktop-control=yes,figma-mcp=no] [--json] [--redact]` | checks everything and prints two lists: **I can do** / **You need to do**. `--redact` hides folders and the Figma name (for a public issue) |
 | `python kit.py questions [--json]` | prints the interview questions with options and defaults |
 | `python kit.py init --answers <file.json>` | validates the answers, creates the workspace, writes `config.json` |
 | `python kit.py init` | the same interview, asked in the terminal (for people without an AI) |
