@@ -2,7 +2,7 @@
 
 You run this kit for the user. It backs up a Figma team to their own disk (screens as PNG/SVG, an offline gallery, local `.fig` copies, design tokens, extras) so they can keep working when the internet or Figma is down. Every AI that can run commands on the user's computer reads this file: Claude, Gemini, Copilot, Cursor, Codex, anything. Nothing here depends on one vendor.
 
-People without an AI double-click `start.bat` / `start.command`, which runs `python kit.py start`: a guided walk through the same steps in the terminal. It's for humans; you use the commands below. If the user already started that way, `python kit.py status` shows where they are.
+People without an AI download a ZIP from the site (`downloads/`, built by `python tools/build_downloads.py`) and double-click `Start.bat` / `Start.command`, which runs `python kit.py start [--lang fa|en]`: a guided walk through the same steps in the terminal, in Persian or English. In that download the kit sits in `app/`, the guides in `guides/`, and an empty `Figma token.txt` next to Start takes the token (Start moves it into `workstation/.env`). It's for humans; you use the commands below. If the user already started that way, `python kit.py status` shows where they are.
 
 **Kit status: v1.0.** Everything works: doctor, interview (a team or single files), plan, page selection, screen export with galleries, local copies (guided and automatic), design tokens, dev handoff, close (verify, drift check, coverage page, archives) and refresh. User guides: `README.md` (English), `README.fa.md` (Persian), `docs/`.
 
@@ -10,7 +10,7 @@ People without an AI double-click `start.bat` / `start.command`, which runs `pyt
 - Use the language they write in. If they chose Persian (`fa`) in the interview, use Persian.
 - Plain words, short messages. Say what you did and what they need to do, nothing else.
 - Ask the interview in **one** message. Don't drip questions one by one.
-- Progress lives in `workstation/REPORT.md` inside their workspace. Point them to it; don't paste it.
+- Progress lives in `REPORT.md` at the top of their workspace: settings as plain decisions, each step's result, and a dated log of steps and decisions (who made them). Point them to it; don't paste it.
 
 ## Rules (never break these)
 1. **The Figma token is a secret.** Never print it, echo it, log it, put it in a report, a URL, a commit, or a chat message. Don't ask the user to paste it in chat: ask them to paste it into `workstation/.env` themselves. If they paste it in chat anyway, write it into `.env` without repeating it, and suggest they replace it with a new token later (the old one is now in the chat history).
@@ -25,6 +25,7 @@ Run from this folder. Python 3.10+ only, no installs.
 
 | Command | What it does |
 |---|---|
+| `python kit.py start [--lang fa\|en]` | the guided walk for people without an AI: asks the language first, then the same steps |
 | `python kit.py doctor [--ai desktop-control=yes,figma-mcp=no] [--json] [--redact]` | checks everything and prints two lists: **I can do** / **You need to do**. `--redact` hides folders and the Figma name (for a public issue) |
 | `python kit.py questions [--json]` | prints the interview questions with options and defaults |
 | `python kit.py init --answers <file.json>` | validates the answers, creates the workspace, writes `config.json` |
@@ -63,7 +64,7 @@ Run from this folder. Python 3.10+ only, no installs.
 
 ### 2 · Plan
 1. Run `python kit.py plan`. It scans every project and file (≈ 1.5 s per Figma call, so a big team takes minutes).
-2. Tell the user the totals it prints (files, pages, screens, time, size) and point them to the **Plan** section of `workstation/REPORT.md`.
+2. Tell the user the totals it prints (files, pages, screens, time, size) and point them to the **Plan** section of `REPORT.md`.
 
 ### 2b · Choose pages (always; the run waits for it)
 1. Run `python kit.py pages --json`. Show the user each file with its pages, numbered, and which ones the page rule pre-selected (✔) or skipped (✖, with the reason: archive, divider, not named). With the **pick** rule every page starts undecided (?).
@@ -103,13 +104,14 @@ Read `docs/handoff.md`. Ask which file and pages the developer needs (numbers fr
 ## Workspace layout
 ```
 <workspace>/
+├─ REPORT.md      settings, each step, and a dated log (before 1.2 it was in workstation/; it moves itself)
 ├─ backup/<project>/<file>/
 │  ├─ <file>.fig | .jam | .deck | .make   local copy (Figma → Import to restore)
 │  ├─ index.html                          offline gallery: grid · map · page tree · filters · viewer
 │  └─ screens/<png|svg|pdf>/<page>/[<section>/]NNN <frame> [<node-id>].<ext>
 ├─ backup/<project>.zip|7z|rar · backup/COVERAGE.html
 ├─ temp/          scratch, safe to delete (incoming/ for guided copies, replaced/ for refreshed files)
-└─ workstation/   REPORT.md · config.json · state.json · doctor.json · inventory.json · pages.json · plan.json
+└─ workstation/   config.json · state.json · doctor.json · inventory.json · pages.json · plan.json
                   · screens/<file-key>.json · logs/run.log · .env (token) · STOP (only while stopping)
 ```
 

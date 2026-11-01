@@ -281,7 +281,7 @@ def coverage(ws):
                + (f'<div><b>{len(arch)}</b>archives</div>' if arch else ""))
     page = (f'<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>Backup coverage</title><style>{CSS}</style></head><body><main>'
-            f'<h1>Backup coverage</h1><p class="sub">What this backup holds. Built {esc(now_iso()[:16].replace("T", " "))} by figma-offline-kit.</p>'
+            f'<h1>Backup coverage</h1><p class="sub">What this backup holds. Built {esc(now_iso()[:16].replace("T", " "))} by figma-offline-kit. Settings, steps and decisions: <a href="../REPORT.md">REPORT.md</a>, one folder up.</p>'
             f'<div class="sum">{summary}</div>{"".join(body)}'
             + (f'<h2>Archives</h2><ul>{"".join(f"<li><a href={quote(a)!r}>{esc(a)}</a></li>" for a in arch)}</ul>' if arch else "")
             + "</main></body></html>\n")
@@ -290,7 +290,35 @@ def coverage(ws):
     return out
 
 
-def render(v, d=None, arch=None, cov=None):
+def render_fa(v, d=None, arch=None, cov=None):
+    """The close section in Persian (Persian REPORT.md, and Start's window where it can show Persian)."""
+    from .i18n import fa_digits as F
+    t = v["totals"]
+    lines = ["# پایان", "", f"وارسی شده در {v['checked'][:16].replace('T', ' ')}.", "",
+             f"- فایل‌های خروجی: {F(t.get('files', 0))} · فریم {F(t.get('screens', 0))}"
+             + "".join(f" · {k.upper()} {F(t.get(k, 0))}" for k in ("png", "svg") if k in t)
+             + (f" · PDF به‌جای SVG {F(t['pdf'])}" if t.get("pdf") else "")
+             + (f" · فریم خالی {F(t['empty'])}" if t.get("empty") else "")]
+    status_fa = {"done": "ذخیره شده", "todo": "مانده", "failed": "ناموفق", "skipped": "کنار گذاشته", "open": "باز", "opened": "باز شده"}
+    cps = {k[5:]: v_ for k, v_ in t.items() if k.startswith("copy ")}
+    if cps:
+        lines.append("- نسخهٔ محلی: " + " · ".join(f"{status_fa.get(k, k)} {F(n)}" for k, n in sorted(cps.items())))
+    if d is not None:
+        ch = [x["name"] for x in d["files"].values() if x["edited_after"]]
+        lines.append(f"- تغییرات: {F(len(d['files']))} فایل بررسی شد · "
+                     + (f"**از زمان پشتیبان در فیگما عوض شده: {'، '.join(ch)}**" if ch else "همه به‌روزند"))
+    if cov:
+        lines.append("- صفحهٔ پوشش: [COVERAGE.html](backup/COVERAGE.html)")
+    for out, note in arch or []:
+        note = note.replace("up to date", "به‌روز").replace("tested", "آزموده").replace("MB", "مگابایت")
+        lines.append(f"- آرشیو: {os.path.basename(out)} ({F(note)})")
+    lines += ["", f"**مشکل‌ها: {F(len(v['problems']))}**"] + [f"- {p}" for p in v["problems"]]
+    return "\n".join(lines) + "\n"
+
+
+def render(v, d=None, arch=None, cov=None, lang="en"):
+    if lang == "fa":
+        return render_fa(v, d, arch, cov)
     t = v["totals"]
     lines = ["# Close", "", f"Checked {v['checked']}.", "",
              f"- Files exported: {t.get('files', 0)} · screens {t.get('screens', 0)}"
@@ -305,7 +333,7 @@ def render(v, d=None, arch=None, cov=None):
         lines.append(f"- Drift: {len(d['files'])} files checked · "
                      + (f"**changed in Figma since the backup: {', '.join(ch)}** (run `python kit.py refresh`)" if ch else "all current"))
     if cov:
-        lines.append("- Coverage page: [COVERAGE.html](../backup/COVERAGE.html)")
+        lines.append("- Coverage page: [COVERAGE.html](backup/COVERAGE.html)")
     for out, note in arch or []:
         lines.append(f"- Archive: {os.path.basename(out)} ({note})")
     lines += ["", f"**Problems: {len(v['problems'])}**"] + [f"- {p}" for p in v["problems"]]

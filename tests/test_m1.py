@@ -132,7 +132,7 @@ class Report(unittest.TestCase):
             report.update(ws, "config", "# Settings\n\ntwo")
             text = open(ws.report_path, encoding="utf-8").read()
             self.assertNotIn("one", text)
-            self.assertLess(text.index("## Doctor"), text.index("## Settings"))
+            self.assertLess(text.index("## Settings"), text.index("## Doctor"))  # decisions first
             self.assertIn("### I can do", text)
             self.assertNotIn("#### I can do", text)  # stored sections are not shifted twice
         finally:

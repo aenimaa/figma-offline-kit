@@ -18,13 +18,30 @@ The kit reads Figma through its REST API with a **personal access token**: a pas
 4. Copy the token. Figma shows it once.
 
 ## Put it where the kit reads it
-After `python kit.py init`, open `<workspace>/workstation/.env` in a text editor and paste the token after `FIGMA_TOKEN=`:
+The token lives in one file inside your backup folder (the *workspace* you chose in the questions):
+
+| | Default place |
+|---|---|
+| Windows | `C:\Users\<you>\figma-backup\workstation\.env` |
+| macOS | `/Users/<you>/figma-backup/workstation/.env` |
+| Linux | `~/figma-backup/workstation/.env` |
+| Any workspace | `<workspace>/workstation/.env` |
+
+The file is created by the setup questions. Its token line looks like this:
 
 ```
 FIGMA_TOKEN=figd_your-token-here
 ```
 
-Save, then run `python kit.py doctor`. It should say *works (signed in as …)*. Running `init` in a terminal also offers a hidden prompt to paste it.
+**Easiest:** the guided start (`Start.bat`, `Start.command` or `python kit.py start`) prints the exact path and offers to
+1. take the token right there, hidden (paste and press Enter; nothing shows while you paste), or
+2. open the file in Notepad (Windows) or TextEdit (macOS), so you paste it after `FIGMA_TOKEN=` and save.
+
+Then it checks the token with Figma before going on. `python kit.py init` in a terminal also offers the hidden prompt.
+
+**In the download:** paste the token into **`Figma token.txt`** next to Start and save. Start moves it into `.env` and empties the txt again, so the token doesn't stay in your Downloads.
+
+**By hand:** open the file in a plain text editor, paste the token after `FIGMA_TOKEN=`, save, then run `python kit.py doctor`. It should say *works (signed in as …)*. On macOS, Finder hides files whose names start with a dot: press Cmd+Shift+. to show them, or use the guided start.
 
 You can use the environment variable `FIGMA_TOKEN` instead; it wins over the file.
 

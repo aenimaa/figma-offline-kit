@@ -52,13 +52,13 @@ class GuidedStart(unittest.TestCase):
         self.assertEqual(rc, 0, out)
         p = read_json(os.path.join(ws.station, "plan.json"))
         self.assertTrue(pages.confirmed(ws, p))
-        self.assertIn("Step 4 of 5", out)
+        self.assertIn("Step 5 of 6", out)
 
         with redirect_stdout(io.StringIO()):
             self.assertEqual(runner.run(ws), 0)  # the export itself, in this process
         opened = []
-        # close now: yes · open the coverage page: yes
-        rc, out = self.wizard(ws, "y", "y", opened=opened)
+        # close now: yes · open the coverage page: yes · open the backup folder: no
+        rc, out = self.wizard(ws, "y", "y", "n", opened=opened)
         self.assertEqual(rc, 0, out)
         self.assertEqual(ws.state()["phase"], "closed")
         self.assertEqual([os.path.basename(x) for x in opened], ["COVERAGE.html"])
@@ -78,10 +78,10 @@ class GuidedStart(unittest.TestCase):
         ws = make_ws(self.tmp, self.base)
         with open(ws.env_path, "w", encoding="utf-8") as f:
             f.write("FIGMA_TOKEN=\n")
-        rc, out = self.wizard(ws, "n")
+        rc, out = self.wizard(ws, "3")  # token: later
         self.assertEqual(rc, 0)
         self.assertIn(ws.env_path, out)
-        self.assertNotIn("Step 2", out)
+        self.assertNotIn("Step 3", out)
 
 
 class Redact(unittest.TestCase):

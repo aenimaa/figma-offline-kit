@@ -9,7 +9,7 @@ import os
 
 from . import figapi
 from .names import divider_label, norm, safe
-from .util import now_iso, read_json, write_json
+from .util import now_iso, read_json, write_json, plural, size_text
 
 SCREEN_TYPES = ("FRAME", "COMPONENT", "COMPONENT_SET", "INSTANCE", "GROUP", "SECTION")
 SCREENS_PER_MIN = {2: 10, 1: 15}  # rough export speed seen on a real team (PNG + SVG, or one format)
@@ -44,8 +44,12 @@ def scan(ws, token, log=print):
                 for p in d.get("document", {}).get("children", []):
                     cnt = {}
                     for c in p.get("children", []):
-                        cnt[c["type"]] = cnt.get(c["type"], 0) + 1
-                    rec["pages"].append({"id": p["id"], "name": p["name"], "counts": cnt})
+                        if c.get("visible", True):  # hidden frames aren't exported
+                            cnt[c["type"]] = cnt.get(c["type"], 0) + 1
+                    rec["pages"].append({"id": p["id"], "name": p["name"], "counts": cnt,
+                                         "sections": [c["id"] for c in p.get("children", [])
+                                                      if c["type"] == "SECTION" and c.get("visible", True)]})
+                count_sections(k, rec, token, log)
             except figapi.FigmaError as e:
                 rec["error"] = f"{e.status}: {e.body[:200]}"
             inv["files"][k] = rec
@@ -110,9 +114,42 @@ def choose_pages(cfg, inv, old):
     return out
 
 
+def count_sections(key, rec, token, log, batch=40, levels=4):
+    """Count the screens inside each page's sections, nested ones too (one small call per 40 sections per level),
+    so the estimate isn't a guess. Sections deeper than `levels` stay a guess (≈ 6 each), and so does everything
+    after a Figma error."""
+    where = {sid: p for p in rec.get("pages", []) for sid in p.pop("sections", [])}
+    for p in rec.get("pages", []):
+        if any(t == "SECTION" for t in p["counts"]):
+            p["counts"].update(IN_SECTIONS=0, SECTION_UNKNOWN=p["counts"]["SECTION"])
+    for _ in range(levels):
+        if not where:
+            break
+        nxt, ids = {}, list(where)
+        for i in range(0, len(ids), batch):
+            part = ids[i:i + batch]
+            try:
+                d = figapi.get(f"/v1/files/{key}/nodes?ids={','.join(part)}&depth=1", token, log=log)
+            except figapi.FigmaError:
+                return
+            for sid in part:
+                node = (d.get("nodes", {}).get(sid) or {}).get("document") or {}
+                cnt = where[sid]["counts"]
+                kids = [c for c in node.get("children", []) if c.get("visible", True)]
+                inner = [c["id"] for c in kids if c["type"] == "SECTION"]
+                cnt["IN_SECTIONS"] += sum(1 for c in kids if c["type"] in SCREEN_TYPES and c["type"] != "SECTION")
+                cnt["SECTION_UNKNOWN"] += len(inner) - 1  # this one is counted now; its inner sections aren't yet
+                nxt.update({x: where[sid] for x in inner})
+        where = nxt
+
+
 def page_estimate(counts):
-    """Rough screen count for a page: its top-level frames, plus ≈ 6 screens per section (their content is unknown)."""
-    return sum(v for t, v in counts.items() if t in SCREEN_TYPES and t != "SECTION") + 6 * counts.get("SECTION", 0)
+    """Screen count for a page: its top-level frames plus the frames inside its sections (counted by the scan);
+    ≈ 6 per section whose content is unknown (nested sections, or inventories from before 1.2)."""
+    top = sum(v for t, v in counts.items() if t in SCREEN_TYPES and t != "SECTION")
+    if "IN_SECTIONS" in counts:
+        return top + counts["IN_SECTIONS"] + 6 * counts.get("SECTION_UNKNOWN", 0)
+    return top + 6 * counts.get("SECTION", 0)
 
 
 def pages_hash(sel):
@@ -166,23 +203,61 @@ def build(ws, inv):
                        "files_with_pages": sum(1 for q in queue if q["pages"]),
                        "pages": sum(len(q["pages"]) for q in queue), "screens_est": screens,
                        "minutes_est": math.ceil(screens / SCREENS_PER_MIN[min(nfmt, 2)]),
+                       "mb_est": round(screens * sum(MB_PER_SCREEN[f] for f in cfg["formats"])),
                        "gb_est": round(screens * sum(MB_PER_SCREEN[f] for f in cfg["formats"]) / 1024, 1),
                        "local_copies": copies, "copy_days": math.ceil(copies / SAVES_PER_DAY) if copies else 0}}
     write_json(os.path.join(ws.station, "plan.json"), plan)
     return plan, sel
 
 
-def render(plan, sel, cfg):
+def render_fa(plan, sel, cfg):
+    """The plan section in Persian, for a Persian REPORT.md."""
+    from .i18n import fa_digits as F
+    from .pages import TEXT
+    t = plan["totals"]
+    m = t["minutes_est"]
+    when = f"حدود {F(f'{m / 60:.1f}')} ساعت" if m >= 90 else f"حدود {F(m)} دقیقه"
+    size = size_text(t.get("mb_est", t["gb_est"] * 1024)).replace("≈ ", "حدود ").replace("MB", "مگابایت").replace("GB", "گیگابایت")
+    lines = ["# برنامه", "", f"ساخته شده در {plan['created'][:16].replace('T', ' ')}. عددهای «حدود» تخمین‌اند.", "",
+             "| | |", "|---|---|",
+             f"| پروژه‌ها | {F(t['projects'])} |",
+             f"| فایل‌ها | {F(t['files'])} ({F(t['design_files'])} فایل طراحی) |",
+             f"| صفحه‌های خروجی | {F(t['pages'])} صفحه در {F(t['files_with_pages'])} فایل |",
+             f"| فریم‌ها | حدود {F(t['screens_est'])} |",
+             f"| زمان خروجی | {when} (خودکار، خودش پیش می‌رود) |",
+             f"| حجم | {F(size)} |"]
+    if cfg["local_copies"] != "skip":
+        how = "خودکار" if cfg["local_copies"] == "auto" else "راهنمایی‌شده: برای هر فایل خودتان Save می‌زنید"
+        lines.append(f"| نسخهٔ محلی | {F(t['local_copies'])} فایل، حدود {F(t['copy_days'])} روز، روزی حدود {F(SAVES_PER_DAY)} تا ({how}) |")
+    lines.append("")
+    if plan["undecided_pages"]:
+        lines += [f"**اول صفحه‌ها را انتخاب کنید:** برای {F(plan['undecided_pages'])} صفحه هنوز تصمیمی گرفته نشده.", ""]
+    why = TEXT["fa"]["why"]
+    lines += ["## به تفکیک پروژه", "", "| پروژه | فایل | نوع | صفحه‌های خروجی | صفحه‌های کنارمانده | فریم (حدود) |",
+              "|---|---|---|---|---|---|"]
+    for q in plan["queue"]:
+        p = sel.get(q["key"], {}).get("pages", {})
+        skipped = [f"{v['name']} ({why.get(v['why'], v['why'])})" for v in p.values() if v["export"] is False and v["why"] != "divider"]
+        kind = q["editorType"] + (" · خطا: " + q["error"][:60] if q.get("error") else "")
+        lines.append(f"| {q['project']} | {q['name']} | {kind} | {F(len(q['pages']))} | {'، '.join(skipped)[:160] or '—'} "
+                     f"| {F(q['est']) if q['est'] else '—'} |")
+    lines += ["", "صفحه‌ها را در Start عوض کنید (یا python kit.py pages). انتخاب‌های شما در خواندن دوبارهٔ فیگما می‌ماند."]
+    return "\n".join(lines) + "\n"
+
+
+def render(plan, sel, cfg, lang=None):
+    if (lang or cfg.get("language")) == "fa":
+        return render_fa(plan, sel, cfg)
     t = plan["totals"]
     hrs = f"{t['minutes_est'] / 60:.1f} h" if t["minutes_est"] >= 90 else f"{t['minutes_est']} min"
     lines = ["# Plan", "", f"Made {plan['created']}. Numbers marked ≈ are estimates.", "",
              "| | |", "|---|---|",
              f"| Projects | {t['projects']} |",
-             f"| Files | {t['files']} ({t['design_files']} design files) |",
-             f"| Pages to export | {t['pages']} in {t['files_with_pages']} files |",
+             f"| Files | {t['files']} ({plural(t['design_files'], 'design file')}) |",
+             f"| Pages to export | {t['pages']} in {plural(t['files_with_pages'], 'file')} |",
              f"| Screens | ≈ {t['screens_est']} |",
              f"| Export time | ≈ {hrs} (automatic, runs on its own) |",
-             f"| Size | ≈ {t['gb_est']} GB |"]
+             f"| Size | {size_text(t.get('mb_est', t['gb_est'] * 1024))} |"]
     if cfg["local_copies"] != "skip":
         how = "automatic" if cfg["local_copies"] == "auto" else "guided: you press Save for each file"
         lines.append(f"| Local copies | {t['local_copies']} files, ≈ {t['copy_days']} day(s) at ≈ {SAVES_PER_DAY} a day ({how}) |")

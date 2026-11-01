@@ -162,28 +162,51 @@ def render_md():
     return "\n".join(out)
 
 
-def ask_terminal(inp=input):
-    """The same interview in a terminal. Returns the answers dict."""
-    answers = {}
+def ask_terminal(inp=input, lang="en", preset=None, person=False, after=None):
+    """The same interview in a terminal, in English or Persian. `preset` answers are kept and not asked.
+    `person`: the guided start's wording and defaults for people without an AI. `after(question id, answers)` is
+    called after each answer; when it returns True the interview ends there (e.g. an existing backup was found).
+    Returns the answers dict."""
+    from .i18n import normalize, num, person_question, question
+    from .util import wrap
+    answers = dict(preset or {})
     for q in QUESTIONS:
-        if not applies(q, answers):
+        if q["id"] in answers or not applies(q, answers):
             continue
-        print(f"\n{q['ask']}")
-        if q.get("help"):
-            print(f"  {q['help']}")
+        if person:
+            q = person_question(q, lang)
+        if q.get("_translated"):
+            ask, help_, labels = q["ask"], q.get("help"), [o["label"] for o in q.get("options", [])]
+        else:
+            ask, help_, labels = question(q, lang)
+        print("\n" + wrap(ask))
+        if help_:
+            print(wrap(help_, indent="  "))
         opts = q.get("options", [])
-        for n, o in enumerate(opts, 1):
-            print(f"  {n}. {o['label']}")
+        for n, label in enumerate(labels, 1):
+            print(wrap(f"{num(n, lang)}. {label}", indent="  ", hang="     "))
         d = q["default"]
         shown = ", ".join(d) if isinstance(d, list) else (d or "")
-        raw = inp(f"> [{shown}] " if shown else "> ").strip()
-        if not raw:
-            answers[q["id"]] = d
-            continue
-        if opts:  # accept option numbers or values
-            picks = [p.strip() for p in raw.split(",")]
-            vals = [opts[int(p) - 1]["value"] if p.isdigit() and 0 < int(p) <= len(opts) else p for p in picks]
-            answers[q["id"]] = vals if q["type"] == "multi" else vals[0]
-        else:
-            answers[q["id"]] = raw
+        if opts and shown:  # show the default as option numbers, which work in any language
+            vals = [o["value"] for o in opts]
+            shown = ", ".join(num(vals.index(x) + 1, lang) for x in (d if isinstance(d, list) else [d]) if x in vals)
+        while True:
+            raw = inp(f"> [{shown}] " if shown else "> ").strip()
+            if not opts:
+                answers[q["id"]] = raw or d
+                break
+            raw = normalize(raw)
+            if not raw:
+                answers[q["id"]] = d
+                break
+            # accept option numbers or values; anything else asks again
+            allowed = [o["value"] for o in opts]
+            picks = [p.strip() for p in raw.split(",") if p.strip()]
+            vals = [allowed[int(p) - 1] if p.isdigit() and 0 < int(p) <= len(opts) else p for p in picks]
+            if vals and all(v in allowed for v in vals) and (q["type"] == "multi" or len(vals) == 1):
+                answers[q["id"]] = vals if q["type"] == "multi" else vals[0]
+                break
+            print(f"  1–{len(opts)}" + (" (1,3)" if q["type"] == "multi" else ""))
+        if after and after(q["id"], answers):
+            break
     return answers

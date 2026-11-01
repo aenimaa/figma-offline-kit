@@ -1,3 +1,4 @@
+_source/
 workstation/
 temp/
 __pycache__/
@@ -5,3 +6,4 @@ __pycache__/
 .env
 .workspace
 test-workspace/
+Figma token.txt

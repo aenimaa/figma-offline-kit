@@ -4,7 +4,16 @@
 No. It only reads. It never edits, moves, shares or deletes anything there.
 
 **Do I need an AI?**
-No. Double-click `start.bat` (Windows) or `start.command` (macOS) and answer the questions, or run the commands yourself (`python kit.py …`). An AI makes it a conversation, and with desktop control it can also save the `.fig` copies for you.
+No. Download the kit for [Windows](https://aenimaa.github.io/figma-offline-kit/downloads/figma-offline-kit-windows.zip) or [macOS](https://aenimaa.github.io/figma-offline-kit/downloads/figma-offline-kit-macos.zip), double-click `Start.bat` or `Start.command` and answer the questions (in Persian or English), or run the commands yourself (`python kit.py …`). An AI makes it a conversation, and with desktop control it can also save the `.fig` copies for you.
+
+**Do I need Python?**
+Yes, Python 3.10 or newer: the kit runs on it and needs nothing else. If it's missing, `Start.bat` offers to install it with winget and `Start.command` with Homebrew or the python.org installer. Both ask first.
+
+**Where does my Figma token go?**
+In `<workspace>/workstation/.env`, by default `C:\Users\<you>\figma-backup\workstation\.env` (Windows) or `~/figma-backup/workstation/.env` (macOS). The guided start lets you paste it there, or paste it into `Figma token.txt` next to Start in the download. See [Figma token](figma-token.md).
+
+**Where can I see what was done?**
+In `REPORT.md` at the top of your backup folder: your settings as plain decisions, each step's result, and a dated log of every step and decision. `COVERAGE.html` links to it.
 
 **Which AI apps can run it?**
 Ones that can run commands on your computer: Claude Code or Claude desktop, Cursor, VS Code with Copilot agent mode, Gemini CLI, Codex. A chat in a browser tab (ChatGPT, Claude on the web) can't.

@@ -41,6 +41,36 @@ def stop_path(ws):
     return os.path.join(ws.station, "STOP")
 
 
+def retry_path(ws):
+    """The guided start writes this file when the person presses R: a wait for Figma ends early."""
+    return os.path.join(ws.station, "RETRY")
+
+
+def waiting_path(ws):
+    """What the run is waiting for, if anything: {"kind": network|server|rate, "until": epoch seconds}."""
+    return os.path.join(ws.station, "waiting.json")
+
+
+def request_retry(ws):
+    write_text(retry_path(ws), "retry now\n")
+
+
+def _hooks(ws):
+    def on_wait(kind, seconds):
+        write_json(waiting_path(ws), {"kind": kind, "until": time.time() + seconds})
+
+    def retry_now():
+        if os.path.exists(retry_path(ws)):
+            try:
+                os.remove(retry_path(ws))
+            except OSError:
+                pass
+            return True
+        return False
+    figapi.WAIT_HOOK, figapi.RETRY_HOOK = on_wait, retry_now
+    figapi.STOP_HOOK = lambda: os.path.exists(stop_path(ws))
+
+
 def start_detached(ws, args=("run",), log_name="run.log"):
     """Start `kit.py <args> --foreground` as its own process, logging to workstation/logs/<log_name>."""
     log = open(os.path.join(ws.logs, log_name), "a", encoding="utf-8")
@@ -64,21 +94,55 @@ def progress(ws, plan):
     return q, done, failed, st
 
 
-def render(ws, plan, note=""):
+NOTE = {  # the run section's note: (English, Persian)
+    "finished": ("finished: {done} done, {failed} failed", "تمام شد: {done} فایل کامل، {failed} ناموفق"),
+    "ended": ("ended unexpectedly ({why}); resume to continue", "ناگهان تمام شد ({why})؛ با ادامه دادن از همان‌جا پیش می‌رود"),
+    "paused": ("paused: {why}; resume to continue", "متوقف شد: {why}؛ با ادامه دادن از همان‌جا پیش می‌رود"),
+}
+WHY_FA = {"stopped on request": "به درخواست شما"}
+PHASE_FA = {"running": "در حال اجرا", "paused": "متوقف", "exported": "خروجی کامل", "closed": "وارسی و بسته شد",
+            "planned": "برنامه‌ریزی شده", "interviewed": "تنظیم شده"}
+
+
+def render(ws, plan, note=None, lang=None):
+    """The run section of REPORT.md. `note` is (NOTE key, values) or None; Persian when the settings say so."""
+    from .i18n import fa_digits
+    fa = (lang or (ws.config() or {}).get("language")) == "fa"
+    F = fa_digits if fa else str
     q, done, failed, st = progress(ws, plan)
     shots = sum(st[x["key"]].get("screens", 0) for x in done)
     phase = ws.state().get("phase")
-    lines = ["# Run", "", f"Updated {now_iso()} · **{phase}**" + (f" · {note}" if note else ""), "",
-             f"**{len(done)} / {len(q)} files** done · {shots} screens" + (f" · {len(failed)} failed" if failed else ""), "",
-             "| Project | File | Screens | State |", "|---|---|---|---|"]
+    text = ""
+    if note:
+        key, kw = note
+        kw = {k: (F(v) if isinstance(v, int) else v) for k, v in kw.items()}
+        if fa and "why" in kw:
+            w = kw["why"]
+            kw["why"] = WHY_FA.get(w) or (w.replace("project ", "پروژهٔ ").replace("file ", "فایل ").replace(" finished", " تمام شد"))
+        text = NOTE[key][1 if fa else 0].format(**kw)
+    if fa:
+        lines = ["# اجرا", "", f"به‌روز شده در {now_iso()[:16].replace('T', ' ')} · **{PHASE_FA.get(phase, phase)}**"
+                 + (f" · {text}" if text else ""), "",
+                 f"**{F(len(done))} از {F(len(q))} فایل** تمام · {F(shots)} فریم" + (f" · {F(len(failed))} ناموفق" if failed else ""), "",
+                 "| پروژه | فایل | فریم | وضعیت |", "|---|---|---|---|"]
+        states = {"done": lambda r: f"✔ {F(r.get('minutes', '?'))} دقیقه", "failed": lambda r: f"✖ {(r.get('error') or '')[:80]}",
+                  "running": lambda r: "… در حال کار"}
+        waiting = "در صف"
+    else:
+        lines = ["# Run", "", f"Updated {now_iso()} · **{phase}**" + (f" · {text}" if text else ""), "",
+                 f"**{len(done)} / {len(q)} files** done · {shots} screens" + (f" · {len(failed)} failed" if failed else ""), "",
+                 "| Project | File | Screens | State |", "|---|---|---|---|"]
+        states = {"done": lambda r: f"✔ {r.get('minutes', '?')} min", "failed": lambda r: f"✖ {(r.get('error') or '')[:80]}",
+                  "running": lambda r: "… working"}
+        waiting = "waiting"
     for x in q:
         r = st.get(x["key"], {})
         s = r.get("status", "waiting")
-        state = {"done": f"✔ {r.get('minutes', '?')} min", "failed": f"✖ {(r.get('error') or '')[:80]}",
-                 "running": "… working"}.get(s, "waiting")
-        href = "../backup/" + quote(x["dir"].replace(os.sep, "/")) + "/index.html"
+        state = states[s](r) if s in states else waiting
+        href = "backup/" + quote(x["dir"].replace(os.sep, "/")) + "/index.html"  # REPORT.md is at the top
         link = f"[{x['name']}]({href})" if s == "done" else x["name"]
-        lines.append(f"| {x['project']} | {link} | {r.get('screens', '—')} | {state} |")
+        n = r.get("screens")
+        lines.append(f"| {x['project']} | {link} | {F(n) if n is not None else '—'} | {state} |")
     return "\n".join(lines) + "\n"
 
 
@@ -96,6 +160,10 @@ def run(ws, log=print):
     if os.path.exists(stop_path(ws)):
         os.remove(stop_path(ws))
     ws.set_phase("running", pid=os.getpid(), started=now_iso())
+    for leftover in (retry_path(ws), waiting_path(ws)):
+        if os.path.exists(leftover):
+            os.remove(leftover)
+    _hooks(ws)
     stop = lambda: os.path.exists(stop_path(ws))  # noqa: E731
     q, _, _, _ = progress(ws, plan)
     log(f"{time.strftime('%H:%M')} run: {len(q)} files with pages · mode {cfg['mode']}")
@@ -128,22 +196,25 @@ def run(ws, log=print):
             report.update(ws, "run", render(ws, plan))
             if cfg["mode"] == "file" and i < len(q) - 1:
                 return pause(ws, plan, f"file {item['name']} finished", log)
-        _, done, failed, _ = progress(ws, plan)
+        _, done, failed, files = progress(ws, plan)
         ws.set_phase("exported", pid=None, finished=now_iso())
-        report.update(ws, "run", render(ws, plan, f"finished: {len(done)} done, {len(failed)} failed"))
+        report.log(ws, "run_done", who="kit", failed=len(failed),
+                   screens=sum(files[x["key"]].get("screens", 0) for x in done))
+        report.update(ws, "run", render(ws, plan, ("finished", {"done": len(done), "failed": len(failed)})))
         log(f"{time.strftime('%H:%M')} finished: {len(done)} done, {len(failed)} failed")
         return 0
     except BaseException as e:
         ws.set_phase("paused", pid=None, note=f"ended: {type(e).__name__}")
-        report.update(ws, "run", render(ws, plan, f"ended unexpectedly ({type(e).__name__}); resume to continue"))
+        report.log(ws, "run_ended", who="kit", why=type(e).__name__)
+        report.update(ws, "run", render(ws, plan, ("ended", {"why": type(e).__name__})))
         raise
 
 
 def wait_for_figma(log, every=60):
-    """Outage: wait until api.figma.com answers again (never skip ahead)."""
+    """Outage: wait until api.figma.com answers again (never skip ahead). R in the guided start retries at once."""
     while not figapi.reachable()[0]:
-        log(f"{time.strftime('%H:%M')} Figma not reachable, checking again in {every}s")
-        time.sleep(every)
+        log(f"{time.strftime('%H:%M')} Can't reach Figma: check your internet or VPN. Trying again in {every}s")
+        figapi.nap(every, "network")
 
 
 def one_file(ws, item, token, cfg, log, stop, tries=3):
@@ -165,7 +236,8 @@ def one_file(ws, item, token, cfg, log, stop, tries=3):
 
 def pause(ws, plan, why, log):
     ws.set_phase("paused", pid=None, note=why)
-    report.update(ws, "run", render(ws, plan, f"paused: {why}; resume to continue"))
+    report.log(ws, "run_paused", who="kit", why=why)
+    report.update(ws, "run", render(ws, plan, ("paused", {"why": why})))
     log(f"{time.strftime('%H:%M')} paused: {why}")
     return 0
 

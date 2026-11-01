@@ -56,6 +56,12 @@
   .btn:hover { border-color:var(--accent); }
   .btn.primary { background:var(--accent-strong); border-color:var(--accent-strong); color:#fff; }
   .btn.primary:hover { background:#2d66e6; }
+  .btn.dl.rec { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+  .btn.dl small { font-weight:400; opacity:.75; font-size:13px; }
+  .btn svg.ic { width:18px; height:18px; flex:none; fill:currentColor; }
+  .btn.dl svg.ic { opacity:.9; }
+  .dls { display:flex; flex-wrap:wrap; gap:12px; margin:8px 0 12px; }
+  .need code { overflow-wrap:anywhere; }
   .meta { color:var(--dim); font-size:14px; margin-top:16px; }
   .shot { border-radius:14px; overflow:hidden; position:relative; border:1px solid var(--line); box-shadow:0 30px 80px rgba(0,0,0,.5); background:var(--bg2); }
   .shot .bar { height:28px; background:#1A1F28; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:7px; padding:0 12px; direction:ltr; }
@@ -164,9 +170,10 @@
       <ul class="chips" lang="fa"><li>PNG + SVG</li><li>گالری آفلاین</li><li>فایل fig</li><li>توکن‌های طراحی</li><li>تحویل به برنامه‌نویس</li></ul>
       <ul class="chips" lang="en"><li>PNG + SVG</li><li>Offline gallery</li><li>.fig files</li><li>Design tokens</li><li>Dev handoff</li></ul>
       <div class="ctas">
-        <a class="btn primary" href="#demo"><span lang="fa">نمونهٔ زنده را ببینید</span><span lang="en">See the live demo</span></a>
-        <a class="btn" href="https://github.com/aenimaa/figma-offline-kit"><span lang="fa">گیت‌هاب</span><span lang="en">GitHub</span></a>
-        <a class="btn" href="https://github.com/aenimaa/figma-offline-kit/archive/refs/heads/main.zip"><span lang="fa">دانلود ZIP</span><span lang="en">Download ZIP</span></a>
+        <a class="btn primary" href="#demo"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5C6.5 5 2.3 8.6 1 12c1.3 3.4 5.5 7 11 7s9.7-3.6 11-7c-1.3-3.4-5.5-7-11-7zm0 11.5A4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 0 1 0 9zm0-7a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg><span lang="fa">نمونهٔ زنده را ببینید</span><span lang="en">See the live demo</span></a>
+        <a class="btn" href="https://github.com/aenimaa/figma-offline-kit"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span lang="fa">گیت‌هاب</span><span lang="en">GitHub</span></a>
+        <a class="btn dl" data-os="windows" href="downloads/figma-offline-kit-windows.zip" download><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 0h7.5v7.5H0zM8.5 0H16v7.5H8.5zM0 8.5h7.5V16H0zM8.5 8.5H16V16H8.5z"/></svg><span lang="fa">دانلود برای ویندوز</span><span lang="en">Download for Windows</span></a>
+        <a class="btn dl" data-os="macos" href="downloads/figma-offline-kit-macos.zip" download><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg><span lang="fa">دانلود برای مک</span><span lang="en">Download for macOS</span></a>
       </div>
       <div class="meta"><span lang="fa">ویندوز · مک · لینوکس · پایتون ۳٫۱۰+ · بدون نصب هیچ پکیجی</span><span lang="en">Windows · macOS · Linux · Python 3.10+ · nothing to install</span></div>
     </div>
@@ -304,27 +311,34 @@
   <section id="start">
     <div class="wrap">
       <h2><span lang="fa">شروع در یک دقیقه</span><span lang="en">Start in a minute</span></h2>
-      <p class="lead" lang="fa">کیت را <a href="https://github.com/aenimaa/figma-offline-kit/archive/refs/heads/main.zip">دانلود کنید</a> و از حالت فشرده دربیاورید. بعد یکی از این سه راه:</p>
-      <p class="lead" lang="en"><a href="https://github.com/aenimaa/figma-offline-kit/archive/refs/heads/main.zip">Download the kit</a> and unzip it. Then pick one:</p>
+      <p class="lead" lang="fa">پایتون ۳٫۱۰ یا جدیدتر باید نصب باشد (رایگان است و کیت با آن کار می‌کند). بعد یکی از این سه راه:</p>
+      <p class="lead" lang="en">You need Python 3.10 or newer (free; the kit runs on it). Then pick one:</p>
       <div class="panel hl">
         <h3>🖱️ <span lang="fa">با دوبار کلیک (ساده‌ترین)</span><span lang="en">Double-click (the easiest)</span></h3>
-        <p lang="fa">در ویندوز <code>start.bat</code> و در مک <code>start.command</code> را باز کنید. قدم‌به‌قدم سؤال می‌پرسد، از همان جایی که مانده‌اید ادامه می‌دهد و چیزی نصب نمی‌کند. اگر پایتون نصب نباشد، صفحهٔ دانلودش را باز می‌کند.</p>
-        <p lang="en">Open <code>start.bat</code> on Windows or <code>start.command</code> on macOS. It asks one step at a time, picks up where you left off, and installs nothing. If Python is missing, it opens the download page.</p>
+        <div class="dls">
+          <a class="btn dl" data-os="windows" href="downloads/figma-offline-kit-windows.zip" download><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 0h7.5v7.5H0zM8.5 0H16v7.5H8.5zM0 8.5h7.5V16H0zM8.5 8.5H16V16H8.5z"/></svg><span lang="fa">ویندوز</span><span lang="en">Windows</span> <small>ZIP</small></a>
+          <a class="btn dl" data-os="macos" href="downloads/figma-offline-kit-macos.zip" download><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg><span lang="fa">مک</span><span lang="en">macOS</span> <small>ZIP</small></a>
+        </div>
+        <p lang="fa">از حالت فشرده دربیاورید و در ویندوز روی <code>Start.bat</code> و در مک روی <code>Start.command</code> دوبار کلیک کنید. اول زبان را می‌پرسد (فارسی / English)، بعد قدم‌به‌قدم سؤال می‌پرسد و از همان جایی که مانده‌اید ادامه می‌دهد. اگر پایتون نصب نباشد، پیشنهاد می‌دهد نصبش کند و اول از شما می‌پرسد.</p>
+        <p lang="en">Unzip it and double-click <code>Start.bat</code> on Windows or <code>Start.command</code> on macOS. It asks your language (فارسی / English), then one step at a time, and picks up where you left off. If Python is missing, it offers to install it and asks first.</p>
+        <p class="need" lang="fa">ویندوز برای فایل‌های اینترنتی هشدار می‌دهد. برای اینکه نیاید، قبل از باز کردن ZIP روی آن راست‌کلیک کنید ← <b>Properties</b> ← تیک <b>Unblock</b> ← <b>OK</b>. وگرنه در «Open File – Security Warning» دکمهٔ <b>Run</b> را بزنید (یا در «Windows protected your PC»: <b>More info</b> ← <b>Run anyway</b>). مک: <b>System Settings ← Privacy &amp; Security ← Open Anyway</b>. در ویندوز پنجرهٔ Start انگلیسی است؛ گزارش و صفحه‌ها فارسی می‌شوند.</p>
+        <p class="need" lang="en">Windows warns about files from the internet. To skip that, before unzipping right-click the ZIP → <b>Properties</b> → tick <b>Unblock</b> → <b>OK</b>. Otherwise click <b>Run</b> on “Open File – Security Warning” (or <b>More info</b> → <b>Run anyway</b> on “Windows protected your PC”). macOS: <b>System Settings → Privacy &amp; Security → Open Anyway</b>.</p>
+
       </div>
       <div class="two">
         <div class="panel">
           <h3>🤖 <span lang="fa">با دستیار هوش مصنوعی</span><span lang="en">With an AI assistant</span></h3>
-          <p lang="fa">پوشه را در برنامه‌ای باز کنید که می‌تواند روی کامپیوترتان دستور اجرا کند (Claude Code یا Claude دسکتاپ، Cursor، Copilot در حالت agent، Gemini CLI یا Codex) و بنویسید:</p>
-          <p lang="en">Open the folder in an AI app that can run commands on your computer (Claude Code or Claude desktop, Cursor, Copilot agent mode, Gemini CLI, Codex), and say:</p>
+          <p lang="fa">مخزن کامل را بگیرید (<a href="https://github.com/aenimaa/figma-offline-kit/archive/refs/heads/main.zip">ZIP</a> یا <code>git clone</code>)، پوشه را در برنامه‌ای باز کنید که می‌تواند روی کامپیوترتان دستور اجرا کند (Claude Code یا Claude دسکتاپ، Cursor، Copilot در حالت agent، Gemini CLI یا Codex) و بنویسید:</p>
+          <p lang="en">Get the full repo (<a href="https://github.com/aenimaa/figma-offline-kit/archive/refs/heads/main.zip">ZIP</a> or <code>git clone</code>), open the folder in an AI app that can run commands on your computer (Claude Code or Claude desktop, Cursor, Copilot agent mode, Gemini CLI, Codex), and say:</p>
           <div class="say"><span lang="fa">«از تیم فیگمای من نسخهٔ پشتیبان بگیر.»</span><span lang="en">“Back up my Figma team.”</span></div>
           <p lang="fa">دستیار <code>AGENTS.md</code> را می‌خواند، سؤال‌ها را در یک پیام می‌پرسد و بقیه را انجام می‌دهد. اگر فارسی بنویسید، فارسی جواب می‌دهد.</p>
           <p lang="en">It reads <code>AGENTS.md</code>, asks a few questions in one message, and runs the rest.</p>
         </div>
         <div class="panel">
           <h3>⌨️ <span lang="fa">بدون هوش مصنوعی</span><span lang="en">On your own</span></h3>
-          <p lang="fa">در ترمینال، داخل همان پوشه:</p>
-          <p lang="en">In a terminal, inside the folder:</p>
-<pre>python kit.py start    <span class="c"># guided, step by step</span>
+          <p lang="fa">در ترمینال، داخل مخزن یا پوشهٔ <code>app</code> نسخهٔ دانلودی:</p>
+          <p lang="en">In a terminal, inside the repo or the download's <code>app</code> folder:</p>
+<pre>python kit.py start    <span class="c"># guided (--lang fa|en)</span>
 <span class="c"># or one at a time:</span>
 python kit.py doctor   <span class="c"># what's ready</span>
 python kit.py init     <span class="c"># a few questions</span>
@@ -334,8 +348,8 @@ python kit.py run      <span class="c"># runs in the background</span>
 python kit.py close    <span class="c"># check and pack</span></pre>
         </div>
       </div>
-      <p class="need" lang="fa">فقط پایتون ۳٫۱۰ یا جدیدتر و یک <a href="https://github.com/aenimaa/figma-offline-kit/blob/main/docs/figma-token.md">توکن فیگما</a> با دسترسی خواندن لازم است. کیت بقیه را خودش بررسی می‌کند.</p>
-      <p class="need" lang="en">You need Python 3.10+ and a read-only <a href="https://github.com/aenimaa/figma-offline-kit/blob/main/docs/figma-token.md">Figma token</a>. The kit checks everything else.</p>
+      <p class="need" lang="fa">یک <a href="https://github.com/aenimaa/figma-offline-kit/blob/main/docs/figma-token.md">توکن فیگما</a> با دسترسی خواندن هم لازم است. جایش فایل <code dir="ltr">workstation/.env</code> داخل پوشهٔ پشتیبان است (پیش‌فرض: <code dir="ltr">~/figma-backup/workstation/.env</code>). راهنمای قدم‌به‌قدم مسیر را نشان می‌دهد و می‌گذارد همان‌جا بچسبانیدش، یا آن را در <code dir="ltr">Figma token.txt</code> کنار Start بچسبانید. همهٔ تنظیمات، قدم‌ها و تصمیم‌ها در <code dir="ltr">REPORT.md</code> بالای پوشهٔ پشتیبان نوشته می‌شود. کیت بقیه را خودش بررسی می‌کند.</p>
+      <p class="need" lang="en">You also need a read-only <a href="https://github.com/aenimaa/figma-offline-kit/blob/main/docs/figma-token.md">Figma token</a>. It goes in <code>workstation/.env</code> inside your backup folder (default <code>~/figma-backup/workstation/.env</code>, on Windows <code>C:\Users\&lt;you&gt;\figma-backup\workstation\.env</code>); the guided start shows the path and lets you paste it there, or paste it into <code>Figma token.txt</code> next to Start. Every setting, step and decision is written down in <code>REPORT.md</code> at the top of the backup folder. The kit checks everything else.</p>
     </div>
   </section>
 
@@ -411,6 +425,12 @@ python kit.py close    <span class="c"># check and pack</span></pre>
   document.getElementById('lang').addEventListener('click', function () {
     set(root.lang === 'fa' ? 'en' : 'fa', true);
   });
+  // Highlight the download for this computer.
+  var plat = ((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent || '').toLowerCase();
+  var mine = /mac|iphone|ipad/.test(plat) ? 'macos' : /win/.test(plat) ? 'windows' : null;
+  if (mine) {
+    document.querySelectorAll('.btn.dl[data-os="' + mine + '"]').forEach(function (a) { a.classList.add('rec'); });
+  }
 })();
 </script>
 </body>

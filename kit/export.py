@@ -16,8 +16,8 @@ BUDGET = {"png": 48e6, "svg": 24e6, "pdf": 24e6}   # pixels per request
 PER_CALL = {"png": 25, "svg": 10, "pdf": 10}
 
 
-class Stopped(Exception):
-    """The user asked the run to stop (workstation/STOP)."""
+Stopped = figapi.Stopped  # the person asked to pause
+
 
 
 def screens_path(ws, key):
@@ -93,18 +93,22 @@ def scale_of(s):
 
 
 def _fetch(url, path, tries=4):
+    """Download one rendered image from Figma's image server. Every read has a deadline (figapi.read_all), so a
+    stalled connection fails and is tried again instead of hanging; a pause request ends it within seconds."""
     err = None
     for t in range(tries):
         try:
-            with urllib.request.urlopen(url, timeout=180) as r:
-                data = r.read()
+            with urllib.request.urlopen(url, timeout=figapi.IDLE_TIMEOUT) as r:
+                data = figapi.read_all(r)
             os.makedirs(lp(os.path.dirname(path)), exist_ok=True)
             with open(lp(path), "wb") as f:
                 f.write(data)
             return len(data)
+        except Stopped:
+            raise
         except Exception as e:  # noqa: BLE001
             err = e
-            time.sleep(3 * (t + 1))
+            figapi.nap(3 * (t + 1))
     raise err
 
 
@@ -158,6 +162,8 @@ def export(ws, sc, token, formats, log=print, stop=lambda: False):
                     else:
                         log(f"  no {ext} for {clean(s['name'])} ({str(last)[:80]})")
             for s in chunk:
+                if stop():
+                    raise Stopped()
                 u = urls.get(s["id"])
                 if u:
                     _fetch(u, target(ws, sc, s, ext))

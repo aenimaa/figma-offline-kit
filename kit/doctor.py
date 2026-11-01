@@ -88,8 +88,15 @@ def run(ws=None, ai=None, network=True):
 
     if network:
         up, why = figapi.reachable()
+        fix = ["Check your internet connection or VPN / proxy, then run doctor again."]
+        if "CERTIFICATE_VERIFY_FAILED" in why:
+            fix = (["Python from python.org on macOS needs its certificates once: open Applications → "
+                    f"Python {sys.version_info.major}.{sys.version_info.minor} and double-click "
+                    "“Install Certificates.command”, then run doctor again."] if platform.system() == "Darwin" else
+                   ["Python can't verify Figma's certificate: a proxy or antivirus may be inspecting HTTPS. "
+                    "Try another network, then run doctor again."])
         c["network"] = _check(OK if up else MISSING, "api.figma.com reachable" if up else f"api.figma.com not reachable ({why})",
-                              True, ["Check your internet connection or VPN / proxy, then run doctor again."])
+                              True, fix)
     else:
         c["network"] = _check(UNKNOWN, "skipped (--offline)", True)
 
@@ -210,7 +217,43 @@ LABELS = {"python": "Python", "workspace": "Workspace", "network": "Network", "t
           "tool_rar": "WinRAR", "tool_node": "Node.js"}
 
 
-def render(r):
+CAN_FA = {
+    "Back up every screen as PNG/SVG with an offline gallery (Figma REST API)":
+        "پشتیبان همهٔ فریم‌ها به‌صورت PNG و SVG با گالری آفلاین",
+    "Save local copies (.fig/.jam/.deck) automatically, paced ≈ 40 a day": "ذخیرهٔ خودکار نسخهٔ محلی fig، روزی حدود ۴۰ تا",
+    "Save local copies guided: I open each file, you press Save local copy":
+        "نسخهٔ محلی fig، راهنمایی‌شده: فایل باز می‌شود، شما Save local copy را می‌زنید",
+    "Save local copies (needs Figma desktop)": "نسخهٔ محلی fig (فیگمای دسکتاپ لازم است)",
+    "Export variables / design tokens through Figma's MCP": "خروجی متغیرها و توکن‌های طراحی با MCP فیگما",
+    "Export variables: by REST on Enterprise, otherwise guided native export":
+        "خروجی متغیرها: با REST در پلن Enterprise، وگرنه خروجی دستی خود فیگما",
+    "Export variables: by REST on Enterprise plans only": "خروجی متغیرها: فقط با REST در پلن Enterprise",
+    "Dev handoff packages (code and specs) through Figma desktop's MCP":
+        "بستهٔ تحویل به برنامه‌نویس (کد و مشخصات) با MCP فیگمای دسکتاپ",
+}
+DETAIL_FA = {"network": "api.figma.com در دسترس است", "token": "کار می‌کند", "team": "خوانده می‌شود",
+             "figma_desktop": "نصب است", "desktop_mcp": "جواب می‌دهد", "tool_7z": "نصب است", "tool_rar": "نصب است",
+             "tool_node": "نصب است", "desktop_control": "دارد", "figma_mcp": "دارد"}
+
+
+def _detail_fa(k, v):
+    """A short Persian result for a check; failing required checks keep their English detail (it names the cause)."""
+    from .i18n import fa_digits
+    if v["status"] == OK:
+        if k == "python":
+            return fa_digits(v["detail"].replace("Python", "پایتون"))
+        if k == "workspace":
+            free = v["detail"].rsplit("·", 1)[-1].strip().replace(" GB free", "")
+            return f"{v['detail'].split(' · ')[0]} · {fa_digits(free)} گیگابایت جای خالی"
+        return DETAIL_FA.get(k, v["detail"])
+    if not v["required"]:
+        return "نیست"
+    return v["detail"] + " (به انگلیسی)"
+
+
+def render(r, lang="en"):
+    if lang == "fa":
+        return render_fa(r)
     c = r["checks"]
     lines = ["# Doctor", "", f"Checked {r['checked']} on {r['platform']}.", ""]
     lines.append("| | Check | Result |")
@@ -235,6 +278,72 @@ def render(r):
         for k, v in opt:
             lines.append(f"- **{LABELS.get(k, k)}**: {' '.join(v['fix'])}")
     return "\n".join(lines).rstrip() + "\n"
+
+
+def render_fa(r):
+    """The doctor section in Persian, for a Persian REPORT.md. Fix steps of failing checks stay English."""
+    from .i18n import fa_digits
+    c = r["checks"]
+    lines = ["# بررسی", "", f"بررسی شده در {r['checked'][:16].replace('T', ' ')} روی {r['platform']}.", "",
+             "| | بررسی | نتیجه |", "|---|---|---|"]
+    for k, v in c.items():
+        label = LABELS_FA.get(k, {"desktop_control": "کنترل دسکتاپ هوش مصنوعی", "figma_mcp": "MCP فیگما در هوش مصنوعی"}.get(k, k))
+        lines.append(f"| {SYMBOL[v['status']]} | {label}{'' if v['required'] else ' (اختیاری)'} | {_detail_fa(k, v)} |")
+    lines += ["", "## کیت چه کاری می‌تواند بکند", ""]
+    for state, text in r["can"]:
+        fa = CAN_FA.get(text) or (text.replace("Archives", "آرشیو") if text.startswith("Archives") else text)
+        lines.append(f"- {'✔' if state == 'yes' else '◐' if state == 'partly' else '✖'} {fa}")
+    req = [(k, v) for k, v in c.items() if v["status"] != OK and v["fix"] and v["required"]]
+    opt = [k for k, v in c.items() if v["status"] != OK and v["fix"] and not v["required"]]
+    lines += ["", "## باید انجام بدهید", ""]
+    if not req:
+        lines += ["کاری لازم نیست. پشتیبان‌گیری می‌تواند شروع شود.", ""]
+    for k, v in req:
+        lines.append(f"**{LABELS_FA.get(k, k)}** (راهنما به انگلیسی):")
+        lines += [f"{fa_digits(i)}. {s}" for i, s in enumerate(v["fix"], 1)]
+        lines.append("")
+    if opt:
+        lines += ["### اختیاری (هر کدام یک امکان را روشن می‌کند)", "",
+                  "، ".join(LABELS_FA.get(k, {"desktop_control": "کنترل دسکتاپ هوش مصنوعی",
+                                              "figma_mcp": "MCP فیگما در هوش مصنوعی"}.get(k, k)) for k in opt)]
+    return "\n".join(lines).rstrip() + "\n"
+
+
+PLAIN = {"need": ("You need to do:", "باید انجام بدهید (جزئیات به انگلیسی):"),
+         "ready": ("Ready. The backup can start.", "آماده است. پشتیبان‌گیری می‌تواند شروع شود."),
+         "optional": ("optional, off", "اختیاری، خاموش")}
+LABELS_FA = {"python": "پایتون", "workspace": "پوشهٔ پشتیبان", "network": "اینترنت", "token": "توکن فیگما",
+             "team": "تیم یا فایل‌های فیگما", "figma_desktop": "فیگمای دسکتاپ", "desktop_mcp": "MCP فیگمای دسکتاپ",
+             "tool_7z": "7-Zip", "tool_rar": "WinRAR", "tool_node": "Node.js"}
+AI_ONLY = ("desktop_control", "figma_mcp")
+
+
+def render_plain(r, lang="en"):
+    """A short console checklist for the guided start: ✔ / ✖ per check, optional items marked '–', then only
+    the required fixes. No tables, no AI-only rows."""
+    from .util import wrap
+    i = 1 if lang == "fa" else 0
+    c, lines = r["checks"], []
+    for k, v in c.items():
+        if k in AI_ONLY:
+            continue
+        name = LABELS_FA.get(k, LABELS.get(k, k)) if i else LABELS.get(k, k)
+        if v["status"] == OK:  # Persian: the item alone (its English details are in the report)
+            lines.append(f"✔ {name}" if i else wrap(f"✔ {name}: {v['detail']}", hang="    "))
+        elif v["required"]:
+            lines.append(wrap(f"{SYMBOL[v['status']]} {name}: {v['detail']}", hang="    "))
+        else:
+            lines.append(f"– {name} ({PLAIN['optional'][i]})")
+    req = [(k, v) for k, v in c.items() if v["required"] and v["status"] != OK and v["fix"]]
+    lines.append("")
+    if not req:
+        lines.append(PLAIN["ready"][i])
+    else:
+        lines.append(PLAIN["need"][i])
+        for k, v in req:
+            lines.append(f"  {LABELS_FA.get(k, k) if i else LABELS.get(k, k)}")
+            lines += [wrap(f"{n}. {s}", indent="    ", hang="       ") for n, s in enumerate(v["fix"], 1)]
+    return "\n".join(lines)
 
 
 def redact(text, ws=None):

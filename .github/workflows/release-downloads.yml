@@ -1,0 +1,51 @@
+# Attaches the Windows and macOS downloads to a GitHub release.
+#
+# Runs only when a release is published on GitHub (Releases → Draft a new release → Publish).
+# Pushing a tag alone does nothing. To attach the files to a release that already exists:
+# Actions → "Release downloads" → Run workflow → type its tag (e.g. v1.2.0).
+#
+# The files are built from the release's own tag with tools/build_downloads.py and named
+# figma-offline-kit-<version>-windows.zip and figma-offline-kit-<version>-macos.zip.
+name: Release downloads
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, e.g. v1.2.0 (the release must exist)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  attach:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check the kit version matches the tag
+        run: |
+          v=$(python -c "from kit import VERSION; print(VERSION)")
+          if [ "v$v" != "$TAG" ]; then echo "kit/__init__.py says $v, the tag is $TAG"; exit 1; fi
+          echo "VERSION=$v" >> "$GITHUB_ENV"
+
+      - name: Build both downloads
+        run: python tools/build_downloads.py
+
+      - name: Attach them to the release
+        run: |
+          cp downloads/figma-offline-kit-windows.zip "figma-offline-kit-$VERSION-windows.zip"
+          cp downloads/figma-offline-kit-macos.zip "figma-offline-kit-$VERSION-macos.zip"
+          gh release upload "$TAG" "figma-offline-kit-$VERSION-windows.zip" "figma-offline-kit-$VERSION-macos.zip" --clobber

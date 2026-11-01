@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Start with `python kit.py doctor` and `python kit.py status`: most problems show up there. The run's log is `workstation/logs/run.log`.
+Start with `python kit.py doctor` and `python kit.py status` (or double-click Start again): most problems show up there. `REPORT.md` at the top of the backup folder logs every step; the run's detailed log is `workstation/logs/run.log`.
 
 | What you see | What to do |
 |---|---|
@@ -20,8 +20,15 @@ Start with `python kit.py doctor` and `python kit.py status`: most problems show
 | **tokens: "use library variables not in the backup"** | the screens use variables published from another file. Add that file to the backup and import its variables |
 | **handoff: code skipped** | Figma desktop's local MCP server isn't answering ([Figma MCP](figma-mcp.md)). Everything else in the handoff is done; run the command again later |
 | **Windows: strange characters in the console** | the kit sets UTF-8 itself; if you pipe its output in PowerShell 5, write to a file from Python instead |
-| **start.bat: "needs Python 3.10 or newer"** | install Python from python.org and tick *Add python.exe to PATH* on the installer's first screen, then double-click again |
-| **macOS: "start.command can't be opened"** | it was downloaded from the internet: System Settings → Privacy & Security → *Open Anyway*, or run `bash start.command` in Terminal |
+| **Start.bat: "needs Python 3.10 or newer"** | answer *Y* to install it with winget. Without winget, install Python from python.org and tick *Add python.exe to PATH* on the installer's first screen, then double-click again |
+| **Start: "Extract the ZIP first"** | Start was opened inside the ZIP: right-click the ZIP → *Extract All…*, then double-click Start in the new folder |
+| **Windows: "Open File – Security Warning … Are you sure you want to run this software?"** (twice: inside the ZIP, then again after extracting) | the files carry Windows' "from the internet" mark. Click *Run*, or, before unzipping, right-click the ZIP → *Properties* → tick *Unblock* → *OK* |
+| **Windows: "Windows protected your PC"** | SmartScreen: *More info* → *Run anyway* |
+| **macOS: "Start.command can't be opened"** | it was downloaded from the internet: System Settings → Privacy & Security → *Open Anyway*, or run `bash Start.command` in Terminal |
+| **macOS: "CERTIFICATE_VERIFY_FAILED"** | Python from python.org needs its certificates once: Applications → Python 3.x → double-click *Install Certificates.command* |
+| **Persian text looks broken or reversed in the terminal** | Windows terminals can't lay out right-to-left text, so on Windows the Start window stays English and Persian goes into `REPORT.md` and the pages |
+| **"Can't reach Figma: check your internet or VPN"** | the backup waits and goes on by itself; in Start, press *R* to try again at once, *P* to pause |
+| **Can't find `workstation/.env`** | the guided start prints its full path and opens it for you; see [Figma token](figma-token.md) |
 | **Path too long (Windows)** | the kit uses long-path names; if another tool fails on them, choose a shorter workspace folder, e.g. `D:\fb` |
 
 ## Still stuck?

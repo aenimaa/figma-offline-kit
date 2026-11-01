@@ -8,8 +8,8 @@ import time
 
 from . import VERSION, close, copies, doctor, gallery, handoff, interview, pages, plan, report, runner, start, tokens, variables
 from .figapi import read_token
-from .util import read_json, utf8_console, write_json, write_text
-from .workspace import Workspace, remember, resolve
+from .util import md_plain, now_iso, plural, read_json, size_text, utf8_console, write_json
+from .workspace import Workspace, clean_token, remember, resolve, save_token
 
 
 
@@ -18,7 +18,7 @@ def cmd_doctor(a):
     r = doctor.run(ws, ai=doctor.parse_ai(a.ai), network=not a.offline)
     md = doctor.render(r)
     if ws and ws.exists():
-        report.update(ws, "doctor", md)
+        report.update(ws, "doctor", doctor.render(r, report.lang_of(ws)))
     out = json.dumps(r, ensure_ascii=False, indent=1) if a.json else md
     print(doctor.redact(out, ws) if getattr(a, "redact", False) else out)
     return 0 if r["core_ready"] else 1
@@ -43,15 +43,20 @@ def cmd_init(a):
     else:
         print("Give the answers with --answers <file.json> (see: python kit.py questions --json).")
         return 1
-    if a.workspace:
-        answers["workspace"] = a.workspace
+    return init_from_answers(answers, a.workspace, as_json=a.json, ask_token=sys.stdin.isatty() and not a.answers)
+
+
+def init_from_answers(answers, workspace=None, as_json=False, ask_token=False, quiet=False):
+    """Validate the answers, create the workspace and write config.json. Returns 0 or 1."""
+    if workspace:
+        answers["workspace"] = workspace
     target = Workspace(os.path.expanduser(answers.get("workspace") or interview.BY_ID["workspace"]["default"]))
     cfg, errors, warnings = interview.validate(answers, read_json(target.doctor_path))
-    if a.json:
+    if as_json:
         print(json.dumps({"ok": not errors, "errors": errors, "warnings": warnings,
                           "config": cfg if not errors else None}, ensure_ascii=False, indent=1))
     if errors:
-        if not a.json:
+        if not as_json:
             print("Some answers need fixing:\n" + "\n".join(f"  ✖ {e}" for e in errors))
         return 1
 
@@ -62,14 +67,20 @@ def cmd_init(a):
     if previous in (None, "interviewed"):
         ws.set_phase("interviewed")
     remember(ws)
-    report.update(ws, "config", report.config_md(cfg))
+    report.update(ws, "config", report.config_md(cfg, ws.env_path))
+    report.log(ws, "settings")
 
-    if sys.stdin.isatty() and not a.answers:
-        if not read_token(ws)[0]:
-            tok = getpass.getpass("\nPaste your Figma token now (hidden), or press Enter to add it later: ").strip()
-            if tok:
-                write_text(ws.env_path, f"FIGMA_TOKEN={tok}\n")
-    if not a.json:
+    if ask_token and not read_token(ws)[0]:
+        print("\nPaste your Figma token now, or press Enter to add it later.")
+        print("Paste with right-click or Ctrl+V (Cmd+V on a Mac). Nothing shows while you paste: that's normal.")
+        tok = getpass.getpass("Token (hidden): ")
+        if clean_token(tok):
+            save_token(ws, tok)
+            report.log(ws, "token")
+            print("✔ Token saved in " + ws.env_path)
+        else:
+            print("No token yet. Paste it later after FIGMA_TOKEN= in " + ws.env_path)
+    if not as_json and not quiet:
         for w in warnings:
             print(f"  ! {w}")
         print(f"Workspace ready: {ws.root}")
@@ -77,7 +88,7 @@ def cmd_init(a):
         if previous not in (None, "interviewed"):
             print(f"  ! The job was already at '{previous}'. New settings apply from the next step.")
         print("Next: python kit.py doctor" if read_token(ws)[0] else
-              "Next: put your Figma token in " + ws.env_path + ", then run: python kit.py doctor")
+                  "Next: put your Figma token in " + ws.env_path + ", then run: python kit.py doctor")
     return 0
 
 
@@ -106,19 +117,29 @@ def cmd_plan(a):
     if runner.running(ws):
         print("A run is in progress. Stop it first (python kit.py stop) or wait for it to pause.")
         return 1
-    print("Scanning Figma (≈ 1.5 s per call)…")
-    inv = plan.scan(ws, token)
+    guided = getattr(a, "guided", False)
+    if not guided:
+        print("Scanning Figma (≈ 1.5 s per call)…")
+    inv = plan.scan(ws, token, **({"log": lambda m: None} if guided else {}))
     p, sel = plan.build(ws, inv)
     report.update(ws, "plan", plan.render(p, sel, ws.config()))
     if ws.state().get("phase") in (None, "interviewed", "planned"):
         ws.set_phase("planned")
-    t = p["totals"]
-    print(f"{t['files']} files in {t['projects']} projects · {t['pages']} pages · ≈ {t['screens_est']} screens · "
-          f"≈ {t['minutes_est']} min · ≈ {t['gb_est']} GB")
     report.update(ws, "pages", pages.render(ws))
-    print(f"Details: {ws.report_path}")
-    print("Next: choose the pages to back up: python kit.py pages")
+    from .i18n import plan_summary as summary_in
+    report.log(ws, "scanned", summary=summary_in(p["totals"], report.lang_of(ws)))
+    if not guided:
+        print(plan_summary(p))
+        print(f"Details: {ws.report_path}")
+        print("Next: choose the pages to back up: python kit.py pages")
     return 0
+
+
+def plan_summary(p):
+    t = p["totals"]
+    return (f"{plural(t['files'], 'file')} in {plural(t['projects'], 'project')} · {plural(t['pages'], 'page')} · "
+            f"≈ {plural(t['screens_est'], 'screen')} · ≈ {t['minutes_est']} min · "
+            f"{size_text(t.get('mb_est', t['gb_est'] * 1024))}")
 
 
 def cmd_pages(a):
@@ -155,7 +176,8 @@ def cmd_pages(a):
         return 0
     print(pages.render(ws))
     t = p["totals"]
-    print(f"Selected: {t['pages']} pages in {t['files_with_pages']} files · ≈ {t['screens_est']} screens · ≈ {t['minutes_est']} min")
+    print(f"Selected: {plural(t['pages'], 'page')} in {plural(t['files_with_pages'], 'file')} · "
+          f"≈ {plural(t['screens_est'], 'screen')} · ≈ {t['minutes_est']} min")
     if pages.confirmed(ws, p):
         print("Confirmed. Next: python kit.py run")
     else:
@@ -172,14 +194,17 @@ def cmd_run(a):
     if not pages.confirmed(ws, p):
         print("Confirm the pages to back up first: python kit.py pages (then --confirm).")
         return 1
-    if runner.running(ws):
+    if runner.running(ws) and ws.state().get("pid") != os.getpid():  # the started run itself may go on
         print(f"Already running (process {ws.state().get('pid')}). Check with python kit.py status.")
         return 1
     if a.foreground:
         return runner.run(ws)
     pid = runner.start_detached(ws)
-    print(f"Started in the background (process {pid}). It keeps going if you close this app.")
-    print(f"Log: {os.path.join(ws.logs, 'run.log')} · progress: python kit.py status · pause: python kit.py stop")
+    ws.set_phase("running", pid=pid, started=now_iso())  # at once, so a watcher sees it before the run writes it
+    report.log(ws, "run_start")
+    if not getattr(a, "guided", False):
+        print(f"Started in the background (process {pid}). It keeps going if you close this app.")
+        print(f"Log: {os.path.join(ws.logs, 'run.log')} · progress: python kit.py status · pause: python kit.py stop")
     return 0
 
 
@@ -234,11 +259,16 @@ def cmd_close(a):
     d = close.drift(ws, token) if cfg["addons"]["drift"] else None
     cov = close.coverage(ws) if cfg["addons"]["coverage"] else None
     arch = close.archives(ws) if cfg["addons"]["archives"] else None
-    report.update(ws, "close", close.render(v, d, arch, cov))
+    lang = report.lang_of(ws)
+    report.update(ws, "close", close.render(v, d, arch, cov, lang))
     write_json(os.path.join(ws.station, "verify.json"), v)
     if ws.state().get("phase") == "exported" and not v["problems"]:
         ws.set_phase("closed", closed=v["checked"])
-    print(close.render(v, d, arch, cov))
+    report.log(ws, "closed", checked=v["totals"].get("files", 0), problems=len(v["problems"]))
+    if getattr(a, "guided", False):  # Start: plain text, in the language its window can show
+        print(md_plain(close.render(v, d, arch, cov, start.window_language(lang))))
+    else:
+        print(close.render(v, d, arch, cov))
     return 0 if not v["problems"] else 1
 
 
@@ -254,7 +284,10 @@ def cmd_refresh(a):
     if not names:
         print("Nothing changed in Figma since the backup (per the last drift check: python kit.py close).")
         return 0
+    report.log(ws, "refresh", names=", ".join(names))
     print(f"Queued again: {', '.join(names)}. Their old backup is in {os.path.join(ws.temp, 'replaced')}.")
+    if getattr(a, "guided", False):
+        return 0
     print("Next: python kit.py run" + (" · then the local copies again: python kit.py copies" if ws.config()["local_copies"] != "skip" else ""))
     return 0
 
@@ -370,6 +403,9 @@ def cmd_stop(a):
         print("Nothing is running.")
         return 0
     runner.request_stop(ws)
+    report.log(ws, "stop")
+    if getattr(a, "guided", False):
+        return 0
     print("Asked the run to pause after the current batch of screens. python kit.py resume continues it.")
     return 0
 
@@ -414,15 +450,19 @@ def cmd_status(a):
 
 
 def cmd_start(a):
+    from .i18n import t
+    lang = a.lang
     try:
-        return start.run(a.workspace)
+        return start.run(a.workspace, lang=lang)
     except (KeyboardInterrupt, EOFError):
-        print("\nStopped. Start again any time: it picks up where you left off.")
+        ws = resolve(a.workspace)
+        lang = lang or ((ws.config() if ws else None) or {}).get("language", "en")
+        print("\n" + t("stopped", lang))
         return 1
     finally:
         if os.environ.get("FOK_PAUSE") and sys.stdin.isatty():
             try:
-                input("\nPress Enter to close this window.")
+                input("\n" + t("press_enter", lang or "en") + " ")
             except (KeyboardInterrupt, EOFError):
                 pass
 
@@ -440,7 +480,8 @@ def main(argv=None):
         s.set_defaults(fn=fn)
         return s
 
-    add("start", cmd_start, "guided start: walks you through every step (what start.bat / start.command run)")
+    add("start", cmd_start, "guided start: walks you through every step (what Start.bat / Start.command run)").add_argument(
+        "--lang", choices=["fa", "en"], help="language of the guided start (fa = Persian); asked first if not given")
     d = add("doctor", cmd_doctor, "check the machine, token and tools")
     d.add_argument("--ai", default="", help="what the AI can do, e.g. desktop-control=yes,figma-mcp=no")
     d.add_argument("--offline", action="store_true", help="skip network checks")

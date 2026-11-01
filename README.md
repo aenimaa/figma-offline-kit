@@ -25,22 +25,41 @@
 
 ## 🚀 Start in a minute
 
-**1 · Get the kit:** [download the ZIP](https://github.com/aenimaa/figma-offline-kit/archive/refs/heads/main.zip) and unzip it (or `git clone` this repo).
+**You need Python 3.10 or newer** (free; the kit runs on it and installs nothing else) and a read-only **[Figma token](docs/figma-token.md)**. If Python is missing, the start file offers to install it and asks first.
 
-**2 · Pick one way:**
+| 🖱️ Double-click, no AI needed | 🤖 With an AI assistant |
+|---|---|
+| **1 ·** Download for **[Windows](https://aenimaa.github.io/figma-offline-kit/downloads/figma-offline-kit-windows.zip)** or **[macOS](https://aenimaa.github.io/figma-offline-kit/downloads/figma-offline-kit-macos.zip)** and unzip it.<br>**2 ·** Double-click **`Start.bat`** (Windows) or **`Start.command`** (macOS).<br><br>It asks your language (فارسی / English), walks you through every step, shows the backup's progress live, and picks up where you left off. | Get this repo: [ZIP](https://github.com/aenimaa/figma-offline-kit/archive/refs/heads/main.zip) or `git clone`. Open the folder in an AI app that **can run commands on your computer**: Claude Code or Claude desktop, Cursor, VS Code with Copilot agent mode, Gemini CLI, Codex. Say:<br><br>**“Back up my Figma team.”**<br><br>It reads [`AGENTS.md`](AGENTS.md), asks a few questions in one message, and runs the rest. |
 
-| 🖱️ Double-click | 🤖 With an AI assistant | ⌨️ In a terminal |
-|---|---|---|
-| **`start.bat`** on Windows, **`start.command`** on macOS.<br><br>It walks you through every step, picks up where you left off, and installs nothing. | Open the folder in an AI app that **can run commands on your computer**: Claude Code or Claude desktop, Cursor, VS Code with Copilot agent mode, Gemini CLI, Codex. Say:<br><br>**“Back up my Figma team.”**<br><br>It reads [`AGENTS.md`](AGENTS.md), asks a few questions in one message, and runs the rest. | `python kit.py start`: the same guided walk.<br><br>Or step by step: `doctor` · `init` · `plan` · `pages` · `run` · `close` (see [`AGENTS.md`](AGENTS.md)). |
+**⌨️ In a terminal:** `python kit.py start` (add `--lang fa` for Persian) runs the same guided walk: in this repo, or in the download's `app/` folder. Step by step: `doctor` · `init` · `plan` · `pages` · `run` · `close` (see [`AGENTS.md`](AGENTS.md)).
 
-You need **Python 3.10+** (the start files link to it if it's missing) and a read-only **[Figma token](docs/figma-token.md)**. The kit checks everything else and tells you what's missing.
+**🔑 Where the token goes:** `<workspace>/workstation/.env`, after `FIGMA_TOKEN=`. With the default workspace that is `C:\Users\<you>\figma-backup\workstation\.env` on Windows and `~/figma-backup/workstation/.env` on macOS. The guided start prints the exact path, lets you paste the token there hidden, or opens a file for you in Notepad / TextEdit, and checks it with Figma. In the download you can also paste it into **`Figma token.txt`** next to Start: Start moves it into `.env` and empties the txt.
+
+**📝 What happened, written down:** `REPORT.md` at the top of the backup folder lists your settings as plain decisions, each step's result, and a dated log of every step and decision.
 
 <details>
-<summary>Notes: chat-only AI, macOS warning, Linux</summary>
+<summary><b>What's in the download</b></summary>
+
+```
+figma-offline-kit-windows/          (or -macos)
+├─ Start.bat                        double-click this (Start.command on macOS)
+├─ Read me first.html               three steps, in English and Persian
+├─ Figma token.txt                  paste your token here (Start moves it to a safe place)
+├─ app/                             the kit: kit.py, kit/, templates/, LICENSE
+└─ guides/                          token, local copies, design tokens, handoff, FAQ, troubleshooting
+```
+
+The downloads are for people without an AI. They leave out `AGENTS.md` and the AI files: **AI users work from this repo**, which has everything (and the tests).
+</details>
+
+<details>
+<summary>Notes: chat-only AI, security warnings, Linux, Persian in terminals</summary>
 
 - **Chat-only AI** (ChatGPT or Claude in a browser tab) can't run the kit: it can't run commands on your computer. Use the double-click way instead.
-- **macOS blocks `start.command` the first time** because it was downloaded: open System Settings → Privacy & Security → *Open Anyway*, or run `bash start.command` in Terminal.
-- **Linux:** run `bash start.command`.
+- **macOS blocks `Start.command` the first time** because it was downloaded: open System Settings → Privacy & Security → *Open Anyway*, or run `bash Start.command` in Terminal.
+- **Windows warns about files from the internet.** To skip it: before unzipping, right-click the ZIP → *Properties* → tick *Unblock* → *OK*. Otherwise click *Run* on "Open File – Security Warning … Are you sure you want to run this software?", or *More info* → *Run anyway* on "Windows protected your PC".
+- **Linux:** run `bash start.command` in this repo.
+- **Persian on Windows:** Windows terminals show Persian reversed and unjoined, so there the Start window stays in English; choosing Persian makes the report (`REPORT.md`) and the pages Persian. On macOS the window can be Persian too.
 </details>
 
 ## 🧭 When you'd need it
@@ -108,6 +127,7 @@ Local **`.fig` / `.jam` / `.deck`** copies from Figma desktop, saved for you by 
 
 ```
 <workspace>/
+├─ REPORT.md          your settings, each step and a dated log of decisions
 ├─ backup/            the deliverable
 │  ├─ COVERAGE.html   what the backup holds
 │  ├─ <project>.zip   one tested archive per project
@@ -118,7 +138,7 @@ Local **`.fig` / `.jam` / `.deck`** copies from Figma desktop, saved for you by 
 │     └─ variables/   tokens.css · _tokens.scss · variables.figma.json
 ├─ handoff/<name>/    dev handoff packages
 ├─ temp/              scratch, safe to delete
-└─ workstation/       REPORT.md (progress) · settings · logs · .env (your token)
+└─ workstation/       settings · logs · .env (your token)
 ```
 
 If a browser won't open `file://` pages, serve the folder: `python -m http.server --directory "<workspace>/backup"`.
